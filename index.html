@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Store311 Attendance</title>
+<style>
+:root{ --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
+html, body{ height:100vh; margin:0; background:#fff; color:#111; font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; }
+.viewport{ box-sizing:border-box; height:100vh; padding:calc(env(safe-area-inset-top,0) + var(--pad)) var(--pad) calc(env(safe-area-inset-bottom,0) + var(--pad)); display:flex; flex-direction:column; gap:16px; max-width:980px; margin:0 auto; overflow:hidden; }
+.brand{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.brand img{ width:132px; height:auto; object-fit:contain; }
+.brand .title{ font-weight:800; font-size:26px; }
+.brand .subtitle{ color:#444; margin-top:2px; }
+.toprow{ display:flex; justify-content:flex-end; align-items:center; gap:10px; }
+.lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
+.tabbar{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.tabbar button{ padding:10px 14px; border-radius:14px; border:1px solid #ddd; background:#f6f7fb; cursor:pointer }
+.tabbar button.active{ background:#dfe2e8; border-color:#cfd4dc }
+.content{ flex:1; display:flex; flex-direction:column; gap:14px; min-height:0; }
+.card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06) }
+label{ display:block; margin:8px 0 6px; font-size:14px; color:#333 }
+input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none }
+textarea{ resize:vertical }
+.row{ display:flex; gap:10px; flex-wrap:wrap }
+.grow{ flex:1 }
+.controls{ display:flex; gap:18px; flex-wrap:wrap; margin-top:10px }
+.bigbtn{ flex:1; padding:18px 14px; font-size:22px; font-weight:700; border-radius:16px }
+.in{ background:var(--green); border:1px solid var(--green-border); color:#14532d }
+.out{ background:var(--blue); border:1px solid var(--blue-border); color:#fff }
+table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px }
+th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left }
+.small{ font-size:14px; padding:10px }
+.hint{ color:#666; font-size:13px; margin-top:6px }
+.status{ margin-top:8px; font-size:14px }
+.tab{ display:none; overflow:auto; -webkit-overflow-scrolling:touch; }
+.tab.active{ display:block; }
+footer{ color:#666; font-size:12px; text-align:center }
+/* PIN modal */
+#pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
+#pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2) }
+#pinBox h3{ margin:0 0 8px 0; font-size:18px }
+#pinMsg{ color:#b42318; font-size:13px; margin-top:8px }
+</style>
+</head>
+<body>
+<div class="viewport">
+<div class="brand">
+<img id="logo" alt="Store311 logo">
+<div class="title">Store311 Attendance</div>
+<div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
+</div>
+
+<div class="toprow">
+<button class="lockbtn" id="lockBtn">Κλείδωμα</button>
+</div>
+
+<div class="tabbar">
+<button class="tabbtn active" data-tab="punch">Χτύπημα</button>
+<button class="tabbtn guard" data-tab="history">Ιστορικό</button>
+<button class="tabbtn guard" data-tab="reports">Αναφορές</button>
+<button class="tabbtn guard" data-tab="settings">Ρυθμίσεις</button>
+</div>
+
+<div class="content">
+<!-- Punch -->
+<div class="card tab active" id="tab-punch">
+<div class="row">
+<div class="grow">
+<label for="employee">Επιλέξτε εργαζόμενο / Προσθήκη</label |oai:code-citation|
