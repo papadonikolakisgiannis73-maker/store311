@@ -1,5 +1,15 @@
-// Minimal SW για εγκατάσταση ως app — ΧΩΡΙΣ cache
-self.addEventListener('install', (e) => self.skipWaiting());
-self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-// Δεν κρατάει τίποτα σε cache – όλα περνάνε στο δίκτυο
-self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request)));
+// Store311 basic service worker – offline cache
+const CACHE_NAME = "store311-cache-v1";
+const urlsToCache = ["./", "./index.html", "./logo.jpg"];
+
+self.addEventListener("install", (event) => {
+event.waitUntil(
+caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+);
+});
+
+self.addEventListener("fetch", (event) => {
+event.respondWith(
+caches.match(event.request).then((response) => response || fetch(event.request))
+);
+});
