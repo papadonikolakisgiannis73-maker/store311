@@ -15,8 +15,6 @@
 --green: #d9fbe4;
 --green-border: #b8f0c8;
 }
-
-/* 🔹 Πλήρης κάλυψη οθόνης */
 html, body {
 height: 100%;
 width: 100%;
@@ -26,8 +24,6 @@ background: #fff;
 color: #111;
 font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
 }
-
-/* 🔹 Η κύρια περιοχή γεμίζει όλο το tablet */
 .viewport {
 box-sizing: border-box;
 height: 100vh;
@@ -41,8 +37,6 @@ justify-content: flex-start;
 gap: 14px;
 overflow: hidden;
 }
-
-/* 🔹 Το logo στο κέντρο, responsive */
 .brand {
 display: flex;
 flex-direction: column;
@@ -51,93 +45,19 @@ justify-content: center;
 gap: 8px;
 margin-top: 10px;
 }
-
-.brand img {
-width: min(22vw, 160px);
-height: auto;
-object-fit: contain;
-}
-
-.brand .title {
-font-weight: 800;
-font-size: 26px;
-}
-
-.brand .subtitle {
-color: #444;
-margin-top: 2px;
-}
-
-.toprow {
-display: flex;
-justify-content: flex-end;
-align-items: center;
-gap: 10px;
-}
-
-.lockbtn {
-border: 1px solid #d7dbe2;
-background: #fff;
-padding: 8px 10px;
-border-radius: 10px;
-cursor: pointer;
-font-size: 14px;
-}
-
-.tabbar {
-display: flex;
-gap: 14px;
-justify-content: center;
-flex-wrap: wrap;
-}
-
-.tabbar button {
-padding: 10px 14px;
-border-radius: 14px;
-border: 1px solid #ddd;
-background: #f6f7fb;
-cursor: pointer;
-}
-
-.tabbar button.active {
-background: #dfe2e8;
-border-color: #cfd4dc;
-}
-
-/* 🔹 Κεντρικό περιεχόμενο */
-.content {
-flex: 1;
-display: flex;
-flex-direction: column;
-gap: 14px;
-overflow: hidden;
-}
-
-.tab {
-display: none;
-flex: 1;
-overflow: auto;
--webkit-overflow-scrolling: touch;
-}
-
-.tab.active {
-display: block;
-}
-
-.card {
-background: #fff;
-padding: 14px;
-border-radius: 12px;
-box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-}
-
-label {
-display: block;
-margin: 8px 0 6px;
-font-size: 14px;
-color: #333;
-}
-
+.brand img { width: min(22vw,160px); height: auto; object-fit: contain; }
+.brand .title { font-weight: 800; font-size: 26px; }
+.brand .subtitle { color: #444; margin-top: 2px; }
+.toprow { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+.lockbtn { border: 1px solid #d7dbe2; background: #fff; padding: 8px 10px; border-radius: 10px; cursor: pointer; font-size: 14px; }
+.tabbar { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.tabbar button { padding: 10px 14px; border-radius: 14px; border: 1px solid #ddd; background: #f6f7fb; cursor: pointer; }
+.tabbar button.active { background: #dfe2e8; border-color: #cfd4dc; }
+.content { flex: 1; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+.tab { display: none; flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; }
+.tab.active { display: block; }
+.card { background: #fff; padding: 14px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06); }
+label { display: block; margin: 8px 0 6px; font-size: 14px; color: #333; }
 input, select, button, textarea {
 font-size: 16px;
 padding: 12px;
@@ -145,97 +65,23 @@ border-radius: 10px;
 border: 1px solid #d7dbe2;
 outline: none;
 }
-
-textarea {
-resize: vertical;
-}
-
-.row {
-display: flex;
-gap: 10px;
-flex-wrap: wrap;
-}
-
-.grow {
-flex: 1;
-}
-
-/* 🔹 Μεγάλα κουμπιά πλήρους πλάτους */
-.controls {
-display: flex;
-gap: 20px;
-flex-wrap: wrap;
-margin-top: 10px;
-}
-
-.bigbtn {
-flex: 1;
-min-height: 84px;
-font-size: 22px;
-font-weight: 700;
-border-radius: 18px;
-}
-
-.in {
-background: var(--green);
-border: 1px solid var(--green-border);
-color: #14532d;
-}
-
-.out {
-background: var(--blue);
-border: 1px solid var(--blue-border);
-color: #fff;
-}
-
-.hint {
-color: #666;
-font-size: 13px;
-margin-top: 6px;
-}
-
-.status {
-margin-top: 8px;
-font-size: 14px;
-}
-
-footer {
-color: #666;
-font-size: 12px;
-text-align: center;
-padding: 8px 0;
-}
-
-/* 🔹 Modal PIN */
-#pinModal {
-display: none;
-position: fixed;
-inset: 0;
-background: rgba(0, 0, 0, 0.45);
-align-items: center;
-justify-content: center;
-}
-
-#pinBox {
-background: #fff;
-padding: 18px;
-border-radius: 12px;
-width: 320px;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-#pinBox h3 {
-margin: 0 0 8px 0;
-font-size: 18px;
-}
-
-#pinMsg {
-color: #b42318;
-font-size: 13px;
-margin-top: 8px;
-}
+textarea { resize: vertical; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.grow { flex: 1; }
+.controls { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+.bigbtn { flex: 1; min-height: 84px; font-size: 22px; font-weight: 700; border-radius: 18px; }
+.in { background: var(--green); border: 1px solid var(--green-border); color: #14532d; }
+.out { background: var(--blue); border: 1px solid var(--blue-border); color: #fff; }
+.hint { color: #666; font-size: 13px; margin-top: 6px; }
+.status { margin-top: 8px; font-size: 14px; }
+footer { color: #666; font-size: 12px; text-align: center; padding: 8px 0; }
+#pinModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; }
+#pinBox { background: #fff; padding: 18px; border-radius: 12px; width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+#pinBox h3 { margin: 0 0 8px 0; font-size: 18px; }
+#pinMsg { color: #b42318; font-size: 13px; margin-top: 8px; }
 </style>
 </head>
+
 <body>
 <div class="viewport">
 <div class="brand">
@@ -256,8 +102,28 @@ margin-top: 8px;
 </div>
 
 <div class="content">
-<!-- Punch -->
 <div class="card tab active" id="tab-punch">
 <div class="row">
 <div class="grow">
-<label for="employee">Επιλέξτε εργαζόμενο / Προσθήκη</label |oai:code-citation|
+<label>Επιλέξτε εργαζόμενο / Προσθήκη</label>
+<div class="row">
+<select id="employee" class="grow"></select>
+<input id="newname" placeholder="Νέο όνομα">
+<button id="add" class="small">Πρόσθεσε</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer>PWA χωρίς cache • Κλειδωμένα tabs με PIN</footer>
+</div>
+
+<!-- Εγγραφή SW ΜΟΝΟ για PWA (χωρίς cache) -->
+<script>
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
+
