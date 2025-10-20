@@ -1,264 +1,300 @@
 <!doctype html>
 <html lang="el">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffffff">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Store311 Attendance</title>
-  <style>
-    :root { --pad: 22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
-    html, body { height:100%; width:100%; margin:0; overflow:hidden; background:#fff; color:#111; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; }
-    .viewport{ box-sizing:border-box; height:100vh; width:100vw; max-width:none; margin:0; padding:calc(env(safe-area-inset-top,0) + 20px) 20px calc(env(safe-area-inset-bottom,0) + 20px); display:flex; flex-direction:column; gap:14px; overflow:hidden; }
-    .brand{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; margin-top:10px; }
-    .brand img{ width:min(22vw,160px); height:auto; object-fit:contain; }
-    .brand .title{ font-weight:800; font-size:26px; }
-    .brand .subtitle{ color:#444; margin-top:2px; }
-    .toprow{ display:flex; justify-content:flex-end; gap:10px; }
-    .lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
-    .tabbar{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-    .tabbar button{ padding:10px 14px; border-radius:14px; border:1px solid #ddd; background:#f6f7fb; cursor:pointer }
-    .tabbar button.active{ background:#dfe2e8; border-color:#cfd4dc }
-    .content{ flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden; }
-    .tab{ display:none; flex:1; overflow:auto; -webkit-overflow-scrolling:touch; }
-    .tab.active{ display:block; }
-    .card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06) }
-    label{ display:block; margin:8px 0 6px; font-size:14px; color:#333 }
-    input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none }
-    textarea{ resize:vertical }
-    .row{ display:flex; gap:10px; flex-wrap:wrap }
-    .grow{ flex:1 }
-    .controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px }
-    .bigbtn{ flex:1; min-height:84px; font-size:22px; font-weight:700; border-radius:18px }
-    .in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d }
-    .out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff }
-    table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px }
-    th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left }
-    .hint{ color:#666; font-size:13px; margin-top:6px }
-    .status{ margin-top:8px; font-size:14px }
-    footer{ color:#666; font-size:12px; text-align:center; padding:8px 0 }
-    #pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center }
-    #pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2) }
-    #pinBox h3{ margin:0 0 8px 0; font-size:18px }
-    #pinMsg{ color:#b42318; font-size:13px; margin-top:8px }
-  </style>
+<!-- PWA manifest + theme -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Store311 Attendance</title>
+<style>
+:root { --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
+
+/* Ίδιο ύψος σε iOS/Android */
+html, body { height:-webkit-fill-available; }
+html, body {
+width:100%; margin:0; overflow:hidden; background:#fff; color:#111;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+}
+
+.viewport{
+box-sizing:border-box;
+height:100vh; /* Android */
+height:-webkit-fill-available;/* iOS */
+width:100vw; max-width:none; margin:0;
+padding:calc(env(safe-area-inset-top,0) + 20px) 20px calc(env(safe-area-inset-bottom,0) + 20px);
+display:flex; flex-direction:column; gap:14px; overflow:hidden;
+}
+
+.brand{ display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:10px; }
+/* Μεγαλύτερο, ίδιο σε όλες τις συσκευές */
+.brand img{
+width:clamp(140px, 28vw, 200px);
+height:auto; object-fit:contain; display:block; margin:0 auto;
+}
+.brand .title{ font-weight:800; font-size:26px; }
+.brand .subtitle{ color:#444; margin-top:2px; }
+
+.toprow{ display:flex; justify-content:flex-end; gap:10px; }
+.lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
+
+.tabbar{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+.tabbar button{ padding:10px 14px; border-radius:14px; border:1px solid #ddd; background:#f6f7fb; cursor:pointer; }
+.tabbar button.active{ background:#dfe2e8; border-color:#cfd4dc; }
+
+.content{ flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden; }
+.tab{ display:none; flex:1; overflow:auto; -webkit-overflow-scrolling:touch; }
+.tab.active{ display:block; }
+
+.card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+label{ display:block; margin:8px 0 6px; font-size:14px; color:#333; }
+input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none; }
+textarea{ resize:vertical; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; }
+.grow{ flex:1; }
+
+.controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; }
+.bigbtn{ flex:1; min-height:84px; font-size:22px; font-weight:700; border-radius:18px; }
+.in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d; }
+.out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff; }
+
+table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left; }
+
+.hint{ color:#666; font-size:13px; margin-top:6px; }
+.status{ margin-top:8px; font-size:14px; }
+footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
+
+/* Modal PIN */
+#pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
+#pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
+#pinBox h3{ margin:0 0 8px 0; font-size:18px; }
+#pinMsg{ color:#b42318; font-size:13px; margin-top:8px; }
+</style>
 </head>
+
 <body>
-  <div class="viewport">
-    <div class="brand">
-      <img id="logo" alt="Store311 logo" src="./logo.png">
-      <div class="title">Store311 Attendance</div>
-      <div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
-    </div>
+<div class="viewport">
+<div class="brand">
+<img id="logo" alt="Store311 logo" src="./logo.png">
+<div class="title">Store311 Attendance</div>
+<div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
+</div>
 
-    <div class="toprow">
-      <button class="lockbtn" id="lockBtn">Κλείδωμα</button>
-    </div>
+<div class="toprow">
+<button class="lockbtn" id="lockBtn">Κλείδωμα</button>
+</div>
 
-    <div class="tabbar">
-      <button class="tabbtn active" data-tab="punch">Χτύπημα</button>
-      <button class="tabbtn guard" data-tab="history">Ιστορικό</button>
-      <button class="tabbtn guard" data-tab="reports">Αναφορές</button>
-      <button class="tabbtn guard" data-tab="settings">Ρυθμίσεις</button>
-    </div>
+<div class="tabbar">
+<button class="tabbtn active" data-tab="punch">Χτύπημα</button>
+<button class="tabbtn guard" data-tab="history">Ιστορικό</button>
+<button class="tabbtn guard" data-tab="reports">Αναφορές</button>
+<button class="tabbtn guard" data-tab="settings">Ρυθμίσεις</button>
+</div>
 
-    <div class="content">
-      <div class="card tab active" id="tab-punch">
-        <div class="row">
-          <div class="grow">
-            <label>Επιλέξτε εργαζόμενο / Προσθήκη</label>
-            <div class="row">
-              <select id="employee" class="grow"></select>
-              <input id="newname" placeholder="Νέο όνομα">
-              <button id="add" class="small">Πρόσθεσε</button>
-            </div>
-            <div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
-          </div>
-          <div>
-            <label for="note">Σημείωση</label>
-            <input id="note" placeholder="π.χ. καθυστέρηση ΜΜΜ">
-          </div>
-        </div>
+<div class="content">
+<!-- Χτύπημα -->
+<div class="card tab active" id="tab-punch">
+<div class="row">
+<div class="grow">
+<label>Επιλέξτε εργαζόμενο / Προσθήκη</label>
+<div class="row">
+<select id="employee" class="grow"></select>
+<input id="newname" placeholder="Νέο όνομα">
+<button id="add" class="small">Πρόσθεσε</button>
+</div>
+<div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
+</div>
+<div>
+<label for="note">Σημείωση</label>
+<input id="note" placeholder="π.χ. καθυστέρηση ΜΜΜ">
+</div>
+</div>
 
-        <div style="margin-top:10px">
-          <label>Χτύπημα κάρτας</label>
-          <div class="controls">
-            <button id="punchIn" class="bigbtn in">✓ IN–Είσοδος</button>
-            <button id="punchOut" class="bigbtn out">◼︎ OUT — Αποχώρηση</button>
-          </div>
-          <div id="statusRow" class="status">—</div>
-          <div id="lastRow" class="hint">Τελευταίο χτύπημα: —</div>
-        </div>
-      </div>
+<div style="margin-top:10px">
+<label>Χτύπημα κάρτας</label>
+<div class="controls">
+<button id="punchIn" class="bigbtn in">✓ IN–Είσοδος</button>
+<button id="punchOut" class="bigbtn out">◼︎ OUT — Αποχώρηση</button>
+</div>
+<div id="statusRow" class="status">—</div>
+<div id="lastRow" class="hint">Τελευταίο χτύπημα: —</div>
+</div>
+</div>
 
-      <div class="card tab" id="tab-history">
-        <div class="row" style="justify-content:space-between;align-items:center">
-          <div class="grow"><label>Ιστορικό (πιο πρόσφατα πρώτα)</label></div>
-          <div class="row">
-            <input id="search" placeholder="αναζήτηση ονόματος/ημερομηνίας">
-            <button id="export" class="small">Εξαγωγή CSV</button>
-            <button id="downloadJson" class="small">Εξαγωγή JSON</button>
-            <button id="clear" class="small">Καθάρισμα</button>
-          </div>
-        </div>
-        <table id="logTable" aria-live="polite">
-          <thead><tr><th>Όνομα</th><th>Ενέργεια</th><th>Ημ/νία</th><th>Ώρα</th><th>Σημειώσεις</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<!-- Ιστορικό -->
+<div class="card tab" id="tab-history">
+<div class="row" style="justify-content:space-between;align-items:center">
+<div class="grow"><label>Ιστορικό (πιο πρόσφατα πρώτα)</label></div>
+<div class="row">
+<input id="search" placeholder="αναζήτηση ονόματος/ημερομηνίας">
+<button id="export" class="small">Εξαγωγή CSV</button>
+<button id="downloadJson" class="small">Εξαγωγή JSON</button>
+<button id="clear" class="small">Καθάρισμα</button>
+</div>
+</div>
+<table id="logTable" aria-live="polite">
+<thead><tr><th>Όνομα</th><th>Ενέργεια</th><th>Ημ/νία</th><th>Ώρα</th><th>Σημειώσεις</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
 
-      <div class="card tab" id="tab-reports">
-        <div class="row">
-          <div><label>Μήνας</label><input id="rep-month" type="month"></div>
-          <div><label>&nbsp;</label><button id="calc-month" class="small">Υπολογισμός</button></div>
-        </div>
-        <table id="reportTable">
-          <thead><tr><th>Εργαζόμενος</th><th>Ημέρα</th><th>Ημ/νία</th><th>Συνολικές ώρες</th><th>Κατάσταση</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<!-- Αναφορές -->
+<div class="card tab" id="tab-reports">
+<div class="row">
+<div><label>Μήνας</label><input id="rep-month" type="month"></div>
+<div><label>&nbsp;</label><button id="calc-month" class="small">Υπολογισμός</button></div>
+</div>
+<table id="reportTable">
+<thead><tr><th>Εργαζόμενος</th><th>Ημέρα</th><th>Ημ/νία</th><th>Συνολικές ώρες</th><th>Κατάσταση</th></tr></thead>
+<tbody></tbody>
+</table>
+</div>
 
-      <div class="card tab" id="tab-settings">
-        <label>Λίστα εργαζομένων</label>
-        <div class="row"><textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea></div>
-        <div class="row">
-          <div class="grow">
-            <label>Webhook URL (Power Automate / Apps Script)</label>
-            <input id="webhook" placeholder="επικόλλησε εδώ το Web App URL">
-            <div class="hint">Στο OUT στέλνεται payload "session" (start/end/minutes) για Excel/Sheets.</div>
-          </div>
-          <div><label>Ώρα έναρξης βάρδιας (π.χ. 09:00)</label><input id="shiftStart" placeholder="09:00"></div>
-          <div><label>Ανοχή καθυστέρησης (λεπτά)</label><input id="grace" type="number" min="0" step="1" value="5"></div>
-        </div>
-        <div class="row">
-          <button id="saveSettings">Αποθήκευση ρυθμίσεων</button>
-          <span class="hint" id="saveMsg"></span>
-        </div>
-      </div>
-    </div>
+<!-- Ρυθμίσεις -->
+<div class="card tab" id="tab-settings">
+<label>Λίστα εργαζομένων</label>
+<div class="row"><textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea></div>
+<div class="row">
+<div class="grow">
+<label>Webhook URL (Power Automate / Apps Script)</label>
+<input id="webhook" placeholder="επικόλλησε εδώ το Web App URL">
+<div class="hint">Στο OUT στέλνεται payload "session" (start/end/minutes) για Excel/Sheets.</div>
+</div>
+<div><label>Ώρα έναρξης βάρδιας (π.χ. 09:00)</label><input id="shiftStart" placeholder="09:00"></div>
+<div><label>Ανοχή καθυστέρησης (λεπτά)</label><input id="grace" type="number" min="0" step="1" value="5"></div>
+</div>
+<div class="row">
+<button id="saveSettings">Αποθήκευση ρυθμίσεων</button>
+<span class="hint" id="saveMsg"></span>
+</div>
+</div>
+</div>
 
-    <footer>PWA offline • Cloud sync στο OUT • PIN-lock</footer>
-  </div>
+<footer>PWA offline • Cloud sync στο OUT • PIN-lock</footer>
+</div>
 
-  <div id="pinModal">
-    <div id="pinBox">
-      <h3 id="pinTitle">Κωδικός διαχειριστή</h3>
-      <input id="pinInput" type="password" placeholder="PIN" style="width:100%; padding:10px; border:1px solid #d7dbe2; border-radius:10px">
-      <div style="display:flex; gap:8px; margin-top:12px; justify-content:flex-end">
-        <button id="pinCancel" class="small">Άκυρο</button>
-        <button id="pinOk" class="small">OK</button>
-      </div>
-      <div id="pinMsg"></div>
-    </div>
-  </div>
+<!-- PIN modal -->
+<div id="pinModal">
+<div id="pinBox">
+<h3 id="pinTitle">Κωδικός διαχειριστή</h3>
+<input id="pinInput" type="password" placeholder="PIN" style="width:100%; padding:10px; border:1px solid #d7dbe2; border-radius:10px">
+<div style="display:flex; gap:8px; margin-top:12px; justify-content:flex-end">
+<button id="pinCancel" class="small">Άκυρο</button>
+<button id="pinOk" class="small">OK</button>
+</div>
+<div id="pinMsg"></div>
+</div>
+</div>
 
-  <script>
-    const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', STATE_KEY='att_state_v1', ADMIN_KEY='store311_admin_hash';
-    function load(k,d){const r=localStorage.getItem(k);return r?JSON.parse(r):d}
-    function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-    function getLog(){return load(LOG_KEY,[])} function setLog(v){save(LOG_KEY,v)}
-    function getState(){return load(STATE_KEY,{})} function setState(s){save(STATE_KEY,s)}
-    function toParts(iso){const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}}
-    function makeEntry(name,action,note){const iso=new Date().toISOString(); const p=toParts(iso); return {id:Math.random().toString(36).slice(2), name, action, iso, date:p.date, time:p.time, note:note||''}}
+<script>
+/* Storage helpers */
+const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', STATE_KEY='att_state_v1', ADMIN_KEY='store311_admin_hash';
+function load(k,d){const r=localStorage.getItem(k);return r?JSON.parse(r):d}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function getLog(){return load(LOG_KEY,[])} function setLog(v){save(LOG_KEY,v)}
+function getState(){return load(STATE_KEY,{})} function setState(s){save(STATE_KEY,s)}
+function toParts(iso){const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}}
+function makeEntry(name,action,note){const iso=new Date().toISOString(); const p=toParts(iso); return {id:Math.random().toString(36).slice(2), name, action, iso, date:p.date, time:p.time, note:note||''}}
 
-    // PIN
-    let adminUnlockedUntil=0; const autoLockMs=5*60*1000;
-    function now(){return Date.now()} function isAdminUnlocked(){return now()<adminUnlockedUntil} function touchAdmin(){adminUnlockedUntil=now()+autoLockMs}
-    async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
-    function showPinModal(promptSet=false){return new Promise((res)=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=promptSet?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=(e)=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
-    async function requireAdmin(){ if(isAdminUnlocked()){touchAdmin();return true} let saved=localStorage.getItem(ADMIN_KEY); if(!saved){const first=await showPinModal(true); if(!first)return false; const h=await sha256(first); localStorage.setItem(ADMIN_KEY,h); touchAdmin(); return true} const pin=await showPinModal(false); if(!pin)return false; const ok=(await sha256(pin))===saved; if(ok){touchAdmin();return true} pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false}
-    lockBtn.addEventListener('click',()=>{adminUnlockedUntil=0}); ['click','touchstart','keydown'].forEach(evt=>addEventListener(evt,()=>{if(isAdminUnlocked())touchAdmin()},{passive:true}));
+/* PIN lock */
+let adminUnlockedUntil=0; const autoLockMs=5*60*1000;
+function now(){return Date.now()} function isAdminUnlocked(){return now()<adminUnlockedUntil} function touchAdmin(){adminUnlockedUntil=now()+autoLockMs}
+async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+function showPinModal(promptSet=false){return new Promise((res)=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=promptSet?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=(e)=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
+async function requireAdmin(){ if(isAdminUnlocked()){touchAdmin();return true} let saved=localStorage.getItem(ADMIN_KEY); if(!saved){const first=await showPinModal(true); if(!first)return false; const h=await sha256(first); localStorage.setItem(ADMIN_KEY,h); touchAdmin(); return true} const pin=await showPinModal(false); if(!pin)return false; const ok=(await sha256(pin))===saved; if(ok){touchAdmin();return true} pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false}
+lockBtn.addEventListener('click',()=>{adminUnlockedUntil=0}); ['click','touchstart','keydown'].forEach(evt=>addEventListener(evt,()=>{if(isAdminUnlocked())touchAdmin()},{passive:true}));
 
-    // Tabs
-    document.querySelectorAll('.tabbtn').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const needAdmin = btn.classList.contains('guard');
-        if(needAdmin && !(await requireAdmin())) return;
-        document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
-        document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-        if(btn.dataset.tab==='history') renderLog();
-      });
-    });
+/* Tabs */
+document.querySelectorAll('.tabbtn').forEach(btn=>{
+btn.addEventListener('click', async ()=>{
+const needAdmin = btn.classList.contains('guard');
+if(needAdmin && !(await requireAdmin())) return;
+document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+if(btn.dataset.tab==='history') renderLog();
+});
+});
 
-    // Employees
-    function renderEmployees(){ const sel=employee; const list=load(EMP_KEY,['Giannis','Maria','Kostas','Eleni']); sel.innerHTML=''; list.forEach(n=>{const o=document.createElement('option');o.text=n;o.value=n;sel.add(o)}); names.value=list.join('\n'); syncButtons(); }
-    function addEmployee(n){ const list=load(EMP_KEY,[]); if(!list.includes(n)){list.push(n); save(EMP_KEY,list); renderEmployees();} }
-    add.addEventListener('click',()=>{ const v=newname.value.trim(); if(!v)return alert('Γράψε ένα όνομα.'); addEmployee(v); newname.value=''; employee.value=v; syncButtons(); });
+/* Employees */
+function renderEmployees(){ const sel=employee; const list=load(EMP_KEY,['Giannis','Maria','Kostas','Eleni']); sel.innerHTML=''; list.forEach(n=>{const o=document.createElement('option');o.text=n;o.value=n;sel.add(o)}); names.value=list.join('\n'); syncButtons(); }
+function addEmployee(n){ const list=load(EMP_KEY,[]); if(!list.includes(n)){list.push(n); save(EMP_KEY,list); renderEmployees();} }
+add.addEventListener('click',()=>{ const v=newname.value.trim(); if(!v)return alert('Γράψε ένα όνομα.'); addEmployee(v); newname.value=''; employee.value=v; syncButtons(); });
 
-    // Webhook
-    async function sendWebhook(payload){
-      const sets=load(SET_KEY,{}); if(!sets.webhook) return;
-      try{ await fetch(sets.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }catch(e){ console.warn('webhook error',e); }
-    }
+/* Webhook */
+async function sendWebhook(payload){
+const sets=load(SET_KEY,{}); if(!sets.webhook) return;
+try{ await fetch(sets.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }catch(e){ console.warn('webhook error',e); }
+}
 
-    // Punch logic (session on OUT)
-    function syncButtons(){
-      const emp=employee.value||newname.value.trim();
-      const st=getState()[emp];
-      punchIn.disabled=!!(st && st.action==='IN');
-      punchOut.disabled=!st || st.action!=='IN';
-      statusRow.textContent = !emp ? '—' : (st ? `Τελευταίο για ${emp}: ${st.action==='IN'?'Είσοδος':'Αποχώρηση'} (${toParts(st.iso).time})` : `Δεν υπάρχει προηγούμενη ενέργεια για ${emp}.`);
-      const last = getLog().slice(-1)[0];
-      lastRow.textContent = last ? `Τελευταίο χτύπημα: ${last.date} – ${last.time} (${last.name}, ${last.action})` : 'Τελευταίο χτύπημα: —';
-    }
-    employee.addEventListener('change',syncButtons); newname.addEventListener('input',syncButtons);
+/* Punch logic (session on OUT) */
+function syncButtons(){
+const emp=employee.value||newname.value.trim();
+const st=getState()[emp];
+punchIn.disabled=!!(st && st.action==='IN');
+punchOut.disabled=!st || st.action!=='IN';
+statusRow.textContent = !emp ? '—' : (st ? `Τελευταίο για ${emp}: ${st.action==='IN'?'Είσοδος':'Αποχώρηση'} (${toParts(st.iso).time})` : `Δεν υπάρχει προηγούμενη ενέργεια για ${emp}.`);
+const last = getLog().slice(-1)[0];
+lastRow.textContent = last ? `Τελευταίο χτύπημα: ${last.date} – ${last.time} (${last.name}, ${last.action})` : 'Τελευταίο χτύπημα: —';
+}
+employee.addEventListener('change',syncButtons); newname.addEventListener('input',syncButtons);
 
-    function punch(action){
-      const name=employee.value||newname.value.trim();
-      if(!name)return alert('Επίλεξε/γράψε όνομα.');
-      addEmployee(name);
-      const note = document.getElementById('note').value.trim();
-      const state=getState(); const last=state[name];
+function punch(action){
+const name=employee.value||newname.value.trim();
+if(!name)return alert('Επίλεξε/γράψε όνομα.');
+addEmployee(name);
+const note = document.getElementById('note').value.trim();
+const state=getState(); const last=state[name];
 
-      if(action==='IN'){
-        if(last && last.action==='IN'){ alert('Ήδη έγινε Είσοδος — πάτα OUT.'); return; }
-        const inEntry = makeEntry(name,'IN',note);
-        const log = getLog(); log.push(inEntry); setLog(log);
-        state[name]=inEntry; setState(state);
-        try{ navigator.vibrate && navigator.vibrate(40) }catch(_){}
-        renderLog(); syncButtons(); return;
-      }
+if(action==='IN'){
+if(last && last.action==='IN'){ alert('Ήδη έγινε Είσοδος — πάτα OUT.'); return; }
+const inEntry = makeEntry(name,'IN',note);
+const log = getLog(); log.push(inEntry); setLog(log);
+state[name]=inEntry; setState(state);
+try{ navigator.vibrate && navigator.vibrate(40) }catch(_){}
+renderLog(); syncButtons(); return;
+}
 
-      if(action==='OUT'){
-        if(!last || last.action!=='IN'){ alert('Δεν υπάρχει ενεργή βάρδια — πάτα IN.'); return; }
-        const outEntry = makeEntry(name,'OUT',note);
-        const log = getLog(); log.push(outEntry); setLog(log);
-        state[name]=outEntry; setState(state);
+if(action==='OUT'){
+if(!last || last.action!=='IN'){ alert('Δεν υπάρχει ενεργή βάρδια — πάτα IN.'); return; }
+const outEntry = makeEntry(name,'OUT',note);
+const log = getLog(); log.push(outEntry); setLog(log);
+state[name]=outEntry; setState(state);
 
-        const start=new Date(last.iso), end=new Date(outEntry.iso);
-        const minutes=Math.max(0, Math.round((end-start)/60000));
+const start=new Date(last.iso), end=new Date(outEntry.iso);
+const minutes=Math.max(0, Math.round((end-start)/60000));
 
-        sendWebhook({ type:'punch', entry:{ name, action:'OUT', iso:outEntry.iso, note, session:{ start_iso:last.iso, end_iso:outEntry.iso, minutes } } });
-        try{ navigator.vibrate && navigator.vibrate(40) }catch(_){}
-        renderLog(); syncButtons(); return;
-      }
-    }
-    punchIn.addEventListener('click',()=>punch('IN'));
-    punchOut.addEventListener('click',()=>punch('OUT'));
+sendWebhook({ type:'punch', entry:{ name, action:'OUT', iso:outEntry.iso, note, session:{ start_iso:last.iso, end_iso:outEntry.iso, minutes } } });
+try{ navigator.vibrate && navigator.vibrate(40) }catch(_){}
+renderLog(); syncButtons(); return;
+}
+}
+punchIn.addEventListener('click',()=>punch('IN'));
+punchOut.addEventListener('click',()=>punch('OUT'));
 
-    // History / export
-    function renderLog(filter=''){ const tbody=document.querySelector('#logTable tbody'); const log=getLog().slice().reverse(); const q=(filter||'').trim().toLowerCase(); tbody.innerHTML=''; log.forEach(r=>{const m=(r.name+' '+r.action+' '+r.date+' '+r.time+' '+(r.note||'')).toLowerCase(); if(q&&!m.includes(q)) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.action}</td><td>${r.date}</td><td>${r.time}</td><td>${r.note||''}</td>`; tbody.appendChild(tr)})}
-    search && search.addEventListener('input',e=>renderLog(e.target.value));
-    export && export.addEventListener('click',()=>{const rows=getLog();if(rows.length===0)return alert('Δεν υπάρχουν εγγραφές.');const hdr=['id','name','action','iso','date','time','note'];const csv=[hdr.join(',')].concat(rows.map(r=>hdr.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(','))).join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download='attendance.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);});
-    downloadJson && downloadJson.addEventListener('click',()=>{const data=getLog();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='attendance.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);});
-    clear && clear.addEventListener('click',()=>{if(!confirm('Σβήσιμο ΟΛΩΝ των εγγραφών;'))return;localStorage.removeItem(LOG_KEY);renderLog();});
+/* History / export */
+function renderLog(filter=''){ const tbody=document.querySelector('#logTable tbody'); const log=getLog().slice().reverse(); const q=(filter||'').trim().toLowerCase(); tbody.innerHTML=''; log.forEach(r=>{const m=(r.name+' '+r.action+' '+r.date+' '+r.time+' '+(r.note||'')).toLowerCase(); if(q&&!m.includes(q)) return; const tr=document.createElement('tr'); tr.innerHTML=`<td>${r.name}</td><td>${r.action}</td><td>${r.date}</td><td>${r.time}</td><td>${r.note||''}</td>`; tbody.appendChild(tr)})}
+search && search.addEventListener('input',e=>renderLog(e.target.value));
+export && export.addEventListener('click',()=>{const rows=getLog();if(rows.length===0)return alert('Δεν υπάρχουν εγγραφές.');const hdr=['id','name','action','iso','date','time','note'];const csv=[hdr.join(',')].concat(rows.map(r=>hdr.map(h=>`"${String(r[h]??'').replace(/"/g,'""')}"`).join(','))).join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download='attendance.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);});
+downloadJson && downloadJson.addEventListener('click',()=>{const data=getLog();const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='attendance.json';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);});
+clear && clear.addEventListener('click',()=>{if(!confirm('Σβήσιμο ΟΛΩΝ των εγγραφών;'))return;localStorage.removeItem(LOG_KEY);renderLog();});
 
-    // Settings
-    saveSettings.addEventListener('click',()=>{const list=names.value.split(/\n+/).map(s=>s.trim()).filter(Boolean);save(EMP_KEY,list);const sets={webhook:webhook.value.trim(),shiftStart:shiftStart.value.trim(),grace:parseInt(grace.value,10)||5};save(SET_KEY,sets);saveMsg.textContent='Αποθηκεύτηκαν.';renderEmployees();setTimeout(()=>saveMsg.textContent='',1500)});
+/* Settings save */
+saveSettings.addEventListener('click',()=>{const list=names.value.split(/\n+/).map(s=>s.trim()).filter(Boolean);save(EMP_KEY,list);const sets={webhook:webhook.value.trim(),shiftStart:shiftStart.value.trim(),grace:parseInt(grace.value,10)||5};save(SET_KEY,sets);saveMsg.textContent='Αποθηκεύτηκαν.';renderEmployees();setTimeout(()=>saveMsg.textContent='',1500)});
 
-    // Init
-    (function init(){
-      if(!localStorage.getItem(EMP_KEY)){ save(EMP_KEY,['Giannis','Maria','Kostas','Eleni']); }
-      const now=new Date(); const ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'); const m=document.getElementById('rep-month'); if(m) m.value=ym;
-      renderEmployees(); renderLog(); syncButtons();
-    })();
-  </script>
+/* Init */
+(function init(){
+if(!localStorage.getItem(EMP_KEY)){ save(EMP_KEY,['Giannis','Maria','Kostas','Eleni']); }
+const now=new Date(); const ym = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'); const m=document.getElementById('rep-month'); if(m) m.value=ym;
+renderEmployees(); renderLog(); syncButtons();
+})();
+</script>
 
-  <!-- Register SW -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(()=>{});
-    }
-  </script>
+<!-- Εγγραφή SW (offline shell) -->
+<script>
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
 </body>
 </html>
