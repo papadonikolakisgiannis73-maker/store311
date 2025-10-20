@@ -1,16 +1,22 @@
 {
-"name": "Store311 Attendance",
-"short_name": "Store311",
-"start_url": "./index.html",
-"display": "standalone",
-"background_color": "#ffffff",
-"theme_color": "#ffffff",
-"orientation": "portrait",
-"icons": [
-{
-"src": "logo.jpg",
-"sizes": "512x512",
-"type": "image/jpeg"
-}
-]
+  "name": "Store311 Attendance",
+  "short_name": "Store311",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
