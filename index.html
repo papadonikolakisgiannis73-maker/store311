@@ -200,7 +200,7 @@ function toParts(iso){const d=new Date(iso);return{date:d.toLocaleDateString('el
 function makeEntry(name,action,note){const iso=new Date().toISOString(); const p=toParts(iso); return {id:Math.random().toString(36).slice(2), name, action, iso, date:p.date, time:p.time, note:note||''}}
 
 /* PIN lock */
-let adminUnlockedUntil=0; const autoLockMs=5*60*1000;
+let adminUnlockedUntil=0; const autoLockMs=2*60*1000;//2 λεπτά
 function now(){return Date.now()} function isAdminUnlocked(){return now()<adminUnlockedUntil} function touchAdmin(){adminUnlockedUntil=now()+autoLockMs}
 async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
 function showPinModal(promptSet=false){return new Promise((res)=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=promptSet?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=(e)=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
