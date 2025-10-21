@@ -1,4 +1,4 @@
-const CACHE = 'store311-v5';
+const CACHE = 'store311-v6';
 const ASSETS = ['./','./index.html','./manifest.json','./logo.png'];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
