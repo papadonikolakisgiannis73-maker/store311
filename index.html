@@ -8,42 +8,73 @@
 <meta name="theme-color" content="#0f1e36" />
 <style>
 :root{
---pad:20px; --radius:14px; --shadow:0 6px 18px rgba(0,0,0,.08);
---blue:#2f6fe4; --blue-dark:#1f51af; --green:#1e7b46; --green-bg:#eaf8f0; --ink:#0f172a;
+--pad:20px; --shadow:0 6px 18px rgba(0,0,0,.08);
+--ink:#0f172a; --muted:#64748b; --blue:#2563eb;
 }
-*{box-sizing:border-box} body{margin:0;font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
-.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:14px var(--pad);background:#0f1e36;color:#fff}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
+
+/* Top bar */
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;
+padding:14px var(--pad);background:#0f1e36;color:#fff}
 .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px}
-.brand img{height:26px;width:auto}
-.lock-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 14px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+.brand img{height:45px;width:auto}
+.lock-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;
+padding:10px 14px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
 .lock-btn[aria-pressed="true"]{background:#c026d3}
+
 .wrap{padding:18px var(--pad) 80px}
-h1{margin:8px 0 4px;font-size:28px}
+h1{margin:10px 0 4px;font-size:28px}
 .sub{color:#475569;margin:0 0 12px}
+
+/* Tabs */
 .tabs{display:flex;gap:14px;overflow:auto;padding-bottom:10px;border-bottom:1px solid #e5e7eb}
-.tab{padding:10px 14px;border-radius:12px;background:#f5f7fb;color:#0f172a;cursor:pointer;white-space:nowrap}
+.tab{padding:10px 14px;border-radius:12px;background:#f5f7fb;color:#0f172a;cursor:pointer;white-space:nowrap;user-select:none}
 .tab[aria-selected="true"]{background:#dbe7ff}
-.tab[disabled]{opacity:.45;cursor:not-allowed}
+
+/* Cards / inputs */
 .card{margin-top:16px;background:#fff;border:1px solid #eef2f7;border-radius:16px;box-shadow:var(--shadow);padding:16px}
 label{display:block;margin:10px 0 6px;color:#334155}
 .row{display:flex;gap:10px}
 .input{flex:1;display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;background:#fff}
 select,input[type=text]{width:100%;border:0;outline:0;font-size:16px;background:transparent}
 .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#f1f5f9;color:#0f172a}
-.actions{display:flex;gap:16px;margin-top:12px}
-.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;font-size:20px;border:2px solid transparent;border-radius:20px;padding:22px 16px;cursor:pointer;transition:transform .05s ease}
-.btn:active{transform:scale(.99)}
-.btn-in{background:var(--green-bg);border-color:#b7e4cb;color:#0b3f26}
-.btn-out{background:#2f6fe4;color:#fff}
+
+/* BIG buttons */
+.actions{display:flex;flex-direction:column;gap:22px;margin-top:20px}
+.btn{
+width:100%;display:flex;align-items:center;justify-content:center;gap:16px;
+font-weight:800;font-size:28px;border:2px solid transparent;border-radius:24px;
+padding:36px 20px;cursor:pointer;transition:transform .05s ease, box-shadow .15s ease;
+box-shadow:0 6px 14px rgba(0,0,0,.08)
+}
+.btn:active{transform:scale(.985)}
+.btn-in{background:linear-gradient(180deg,#16a34a 0%,#15803d 100%);color:#fff;border:none}
+.btn-out{background:linear-gradient(180deg,#2563eb 0%,#1e3a8a 100%);color:#fff;border:none}
 .btn[disabled]{opacity:.6;cursor:not-allowed}
-.btn .spinner{display:none;width:18px;height:18px;border:3px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.btn .spinner{display:none;width:22px;height:22px;border:3px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
 .btn.wait .spinner{display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
+
 .last{margin-top:10px;font-size:14px;color:#334155}
-.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;background:#0f172a;color:#fff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
 .history{font-size:15px;margin-top:8px;color:#475569}
 .history ul{margin:8px 0 0;padding-left:16px}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;background:#0f172a;color:#fff;
+padding:12px 16px;border-radius:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+
+/* PIN modal */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200}
+.modal{width:min(440px,92vw);background:#fff;border-radius:18px;box-shadow:var(--shadow);padding:18px}
+.modal h3{margin:0 0 8px}
+.pin-input{display:flex;gap:10px;justify-content:center;margin:12px 0 8px}
+.pin-input input{width:48px;height:54px;font-size:28px;text-align:center;border:1px solid #e5e7eb;border-radius:12px}
+.row-btns{display:flex;gap:10px;margin-top:12px}
+.primary{background:#0f1e36;color:#fff;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.secondary{background:#f3f4f6;border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
+.hint{font-size:13px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -52,7 +83,7 @@ select,input[type=text]{width:100%;border:0;outline:0;font-size:16px;background:
 <img src="logo.png" alt="Store311" />
 <span>Store311</span>
 </div>
-<button id="lockBtn" class="lock-btn" aria-pressed="false" title="Κλείδωμα">
+<button id="lockBtn" class="lock-btn" aria-pressed="true" title="Κλείδωμα">
 <span>🔒</span> Κλείδωμα
 </button>
 </header>
@@ -63,32 +94,28 @@ select,input[type=text]{width:100%;border:0;outline:0;font-size:16px;background:
 
 <nav class="tabs" aria-label="Μενού">
 <button class="tab" data-tab="check" aria-selected="true">Χτύπημα</button>
-<button id="tabHistory" class="tab" data-tab="history">Ιστορική</button>
-<button id="tabReports" class="tab" data-tab="reports">Αναφορές</button>
-<button id="tabSettings" class="tab" data-tab="settings">Ρυθμίσεις</button>
+<button class="tab" data-tab="history" data-protected="true">Ιστορικό</button>
+<button class="tab" data-tab="reports" data-protected="true">Αναφορές</button>
+<button class="tab" data-tab="settings" data-protected="true">Ρυθμίσεις</button>
 </nav>
 
-<section class="card">
+<section class="card" id="screen-check">
 <label>Επιλέξτε εργαζόμενο / Προσθήκη</label>
 <div class="row">
 <div class="input">
 <select id="employee">
-<option>Giannis</option>
-<option>Maria</option>
-<option>Nikos</option>
+<option>Giannis</option><option>Maria</option><option>Nikos</option>
 </select>
 </div>
 <div class="input"><input id="newName" type="text" placeholder="Νέο όνομα" /></div>
 </div>
-<div style="margin-top:8px">
-<button id="addBtn" class="pill">➕ Προσθέσε</button>
-</div>
+<div style="margin-top:8px"><button id="addBtn" class="pill">➕ Προσθέσε</button></div>
 </section>
 
 <section class="card">
 <div class="history" id="storageNote">Καταχώριση IN/OUT – αποθήκευση τοπικά (offline) σε cloud</div>
 <label style="margin-top:12px">Σημείωση</label>
-<!-- (προαιρετικό textarea) -->
+
 <div class="actions">
 <button id="btnIn" class="btn btn-in" data-action="IN">
 <span class="spinner" aria-hidden="true"></span> ✓ IN – Είσοδος
@@ -97,46 +124,91 @@ select,input[type=text]{width:100%;border:0;outline:0;font-size:16px;background:
 <span class="spinner" aria-hidden="true"></span> ⬤ OUT – Αποχώρηση
 </button>
 </div>
+
 <div class="last" id="lastAction">Τελευταία ενέργεια: —</div>
 <div class="history">
 <strong>Πρόσφατες κινήσεις</strong>
 <ul id="recentList"></ul>
 </div>
 </section>
+
+<!-- placeholders για τα άλλα tabs (μπορείς να τα γεμίσεις αργότερα) -->
+<section class="card" id="screen-history" hidden><strong>Ιστορικό καταχωρίσεων</strong></section>
+<section class="card" id="screen-reports" hidden><strong>Αναφορές</strong></section>
+<section class="card" id="screen-settings" hidden><strong>Ρυθμίσεις</strong> – άλλαξε PIN σύντομα (προεπιλεγμένο 3110)</section>
 </main>
 
+<!-- Toast -->
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+<!-- PIN Modal -->
+<div id="pinModal" class="modal-back" role="dialog" aria-modal="true" aria-label="Εισαγωγή PIN">
+<div class="modal">
+<h3>Κλειδωμένο περιεχόμενο</h3>
+<p class="hint">Πληκτρολόγησε το PIN για πρόσβαση.</p>
+<div class="pin-input">
+<input maxlength="1" inputmode="numeric" />
+<input maxlength="1" inputmode="numeric" />
+<input maxlength="1" inputmode="numeric" />
+<input maxlength="1" inputmode="numeric" />
+<input maxlength="1" inputmode="numeric" />
+<input maxlength="1" inputmode="numeric" />
+</div>
+<div class="row-btns">
+<button id="pinCancel" class="secondary">Άκυρο</button>
+<button id="pinOk" class="primary">OK</button>
+</div>
+</div>
+</div>
+
 <script>
-// ---- helpers
+// ====== CONFIG
+const DEFAULT_PIN = '3110'; // <-- προεπιλεγμένο PIN
+const LS_PIN = 'store311.pin';
+const LS_EVENTS = 'store311.attendance.events';
+const LS_LOCKED = 'store311.locked';
+
+// ====== helpers
 const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const byId = id => document.getElementById(id);
+const toastEl = byId('toast');
+
 const formatTime = (d=new Date()) =>
-d.toLocaleString('el-GR', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric'});
+d.toLocaleString('el-GR',{hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric'});
 
-// ---- lock behaviour: disables History/Reports/Settings tabs
-const lockBtn = $('#lockBtn');
-const lockableTabs = ['#tabHistory','#tabReports','#tabSettings'].map(s=>$(s));
-function setLocked(isLocked){
-lockBtn.setAttribute('aria-pressed', String(isLocked));
-lockableTabs.forEach(t=> t.disabled = isLocked);
+// ====== PIN storage
+function getPin(){ return localStorage.getItem(LS_PIN) || DEFAULT_PIN; }
+function setPin(p){ localStorage.setItem(LS_PIN, p); }
+
+// ====== lock state
+let isLocked = (localStorage.getItem(LS_LOCKED) ?? 'true') === 'true';
+const protectedTabs = new Set(['history','reports','settings']);
+
+function setLocked(v){
+isLocked = v;
+localStorage.setItem(LS_LOCKED, String(v));
+byId('lockBtn').setAttribute('aria-pressed', String(v));
+showToast(v ? '🔒 Κλείδωσες πρόσβαση στα tabs.' : '🔓 Ξεκλείδωσες τα tabs.');
 }
-lockBtn.addEventListener('click', () => setLocked(lockBtn.getAttribute('aria-pressed')!=='true'));
 
-// ---- local storage keys
-const LS_KEY = 'store311.attendance.events';
-
-// ---- load & render recent
-function getEvents(){
-try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
-catch { return []; }
+// ====== toast
+function showToast(msg){
+toastEl.textContent = msg;
+toastEl.classList.add('show');
+setTimeout(()=> toastEl.classList.remove('show'), 2000);
+if(navigator.vibrate) navigator.vibrate(15);
 }
+
+// ====== events store
+function getEvents(){ try{ return JSON.parse(localStorage.getItem(LS_EVENTS)||'[]'); }catch{ return []; } }
 function saveEvent(ev){
 const arr = getEvents();
 arr.unshift(ev);
-localStorage.setItem(LS_KEY, JSON.stringify(arr.slice(0,50))); // κρατάμε τα 50 πιο πρόσφατα
+localStorage.setItem(LS_EVENTS, JSON.stringify(arr.slice(0,100)));
 }
 function renderRecent(){
-const ul = $('#recentList'); ul.innerHTML='';
+const ul = byId('recentList'); ul.innerHTML='';
 getEvents().slice(0,6).forEach(e=>{
 const li=document.createElement('li');
 li.textContent = `${e.emp}: ${e.action} — ${e.time}`;
@@ -144,55 +216,129 @@ ul.appendChild(li);
 });
 }
 
-// ---- employee add
-$('#addBtn').addEventListener('click', ()=>{
-const name = $('#newName').value.trim();
-if(!name) return;
-const opt = document.createElement('option'); opt.textContent=name;
-$('#employee').appendChild(opt); $('#employee').value=name; $('#newName').value='';
-showToast(`Προστέθηκε εργαζόμενος: ${name}`);
-});
-
-// ---- IN/OUT handlers with visual confirmation
+// ====== IN/OUT UX
 function disableDuring(btn, ms){
 btn.classList.add('wait'); btn.disabled = true;
 setTimeout(()=>{ btn.classList.remove('wait'); btn.disabled=false; }, ms);
 }
 function flashButton(btn, ok=true){
 const orig = btn.style.boxShadow;
-btn.style.boxShadow = ok ? '0 0 0 4px rgba(16,185,129,.35)' : '0 0 0 4px rgba(239,68,68,.35)';
+btn.style.boxShadow = ok ? '0 0 0 5px rgba(16,185,129,.35)' : '0 0 0 5px rgba(239,68,68,.35)';
 setTimeout(()=> btn.style.boxShadow = orig, 350);
 }
-function showToast(msg){
-const toast = $('#toast'); toast.textContent = msg;
-toast.classList.add('show'); setTimeout(()=> toast.classList.remove('show'), 2200);
-if(navigator.vibrate) navigator.vibrate(20);
-}
 function setLast(action, emp){
-$('#lastAction').textContent = `Τελευταία ενέργεια: ${emp} — ${action} (${formatTime()})`;
+byId('lastAction').textContent = `Τελευταία ενέργεια: ${emp} — ${action} (${formatTime()})`;
 }
-
 function handleAction(action){
-const emp = $('#employee').value;
-const btn = action==='IN' ? $('#btnIn') : $('#btnOut');
+const emp = byId('employee').value;
+const btn = action==='IN' ? byId('btnIn') : byId('btnOut');
 disableDuring(btn, 700);
-flashButton(btn, true);
-const event = { emp, action, time: formatTime(), ts: Date.now() };
-saveEvent(event);
-renderRecent();
-setLast(action, emp);
-showToast(`${emp}: ${action} καταχωρήθηκε • ${event.time}`);
+flashButton(btn,true);
+const ev = { emp, action, time:formatTime(), ts:Date.now() };
+saveEvent(ev); renderRecent(); setLast(action, emp);
+showToast(`${emp}: ${action} • ${ev.time}`);
 }
 
-$('#btnIn').addEventListener('click', ()=> handleAction('IN'));
-$('#btnOut').addEventListener('click', ()=> handleAction('OUT'));
+byId('btnIn').addEventListener('click', ()=> handleAction('IN'));
+byId('btnOut').addEventListener('click',()=> handleAction('OUT'));
 
-// init
-setLocked(false);
+// add employee
+byId('addBtn').addEventListener('click', ()=>{
+const name = byId('newName').value.trim();
+if(!name) return;
+const opt = document.createElement('option'); opt.textContent=name;
+byId('employee').appendChild(opt); byId('employee').value=name; byId('newName').value='';
+showToast(`Προστέθηκε: ${name}`);
+});
+
+// ====== tabs switching with guard
+const screens = {
+check: byId('screen-check'),
+history: byId('screen-history'),
+reports: byId('screen-reports'),
+settings:byId('screen-settings')
+};
+
+function switchTo(tabKey){
+$$('.tab').forEach(t=>t.setAttribute('aria-selected','false'));
+$(`.tab[data-tab="${tabKey}"]`).setAttribute('aria-selected','true');
+Object.values(screens).forEach(sc=> sc.hidden=true);
+screens[tabKey].hidden=false;
+}
+
+$$('.tab').forEach(tab=>{
+tab.addEventListener('click', async ()=>{
+const key = tab.dataset.tab;
+if (isLocked && protectedTabs.has(key)){
+const ok = await promptPin();
+if(!ok) return;
+setLocked(false); // ξεκλειδώνει μέχρι να πατηθεί ξανά "Κλείδωμα"
+}
+switchTo(key);
+});
+});
+
+// ====== lock button
+byId('lockBtn').addEventListener('click', async ()=>{
+const locked = isLocked;
+if (locked){
+const ok = await promptPin(); // ζήτα PIN για ξεκλείδωμα
+if (ok) setLocked(false);
+} else {
+setLocked(true);
+}
+});
+
+// ====== PIN modal logic
+const modalBack = byId('pinModal');
+const modalInputs = $$('#pinModal .pin-input input');
+const pinCancel = byId('pinCancel');
+const pinOk = byId('pinOk');
+
+function openPinModal(){
+modalInputs.forEach(i=> i.value='');
+modalBack.style.display='flex';
+modalInputs[0].focus();
+}
+function closePinModal(){ modalBack.style.display='none'; }
+function readPinFromInputs(){ return modalInputs.map(i=> i.value.replace(/\D/g,'')).join(''); }
+
+modalInputs.forEach((inp, idx)=>{
+inp.addEventListener('input', ()=>{
+inp.value = inp.value.replace(/\D/g,'').slice(0,1);
+if (inp.value && idx < modalInputs.length-1) modalInputs[idx+1].focus();
+});
+inp.addEventListener('keydown',(e)=>{
+if(e.key==='Backspace' && !inp.value && idx>0) modalInputs[idx-1].focus();
+if(e.key==='Enter') pinOk.click();
+});
+});
+
+function promptPin(){
+return new Promise(resolve=>{
+openPinModal();
+const onOk = ()=>{
+const typed = readPinFromInputs();
+const actual = getPin();
+if (!typed){ showToast('Βάλε PIN'); return; }
+if (typed === actual){ closePinModal(); resolve(true); }
+else { showToast('Λάθος PIN'); modalInputs.forEach(i=>i.value=''); modalInputs[0].focus(); }
+};
+const onCancel = ()=>{ closePinModal(); resolve(false); };
+pinOk.onclick = onOk; pinCancel.onclick = onCancel;
+modalBack.onclick = (e)=>{ if(e.target===modalBack) onCancel(); };
+});
+}
+
+// ====== init
+(function init(){
+// αν δεν έχει οριστεί PIN, γράψε το default μία φορά
+if (!localStorage.getItem(LS_PIN)) setPin(DEFAULT_PIN);
+// αρχικό tab
+switchTo('check');
+// lock UI από αποθήκευση
+byId('lockBtn').setAttribute('aria-pressed', String(isLocked));
 renderRecent();
+})();
 </script>
 </body>
-</html>
-
-
-
