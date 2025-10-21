@@ -1,106 +1,198 @@
-
 <!doctype html>
 <html lang="el">
 <head>
-<!-- PWA manifest + theme -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
-<meta charset="utf-8">
+<meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <title>Store311 Attendance</title>
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0f1e36" />
 <style>
-:root { --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
-
-/* Ίδιο ύψος iOS/Android */
-html,body{height:-webkit-fill-available;}
-html,body{
-width:100%; margin:0; overflow:hidden; background:#fff; color:#111;
-font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
+:root{
+--pad:20px; --radius:14px; --shadow:0 6px 18px rgba(0,0,0,.08);
+--blue:#2f6fe4; --blue-dark:#1f51af; --green:#1e7b46; --green-bg:#eaf8f0; --ink:#0f172a;
 }
-
-.viewport{
-box-sizing:border-box;
-height:100dvh; width:100vw; max-width:none; margin:0;
-padding:10px 20px 20px;
-display:flex; flex-direction:column; gap:14px; overflow:hidden;
-}
-
-.brand{ display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:60px; }
-/* ↓↓↓ μικρότερο logo */
-.brand svg{ width:clamp(120px, 20vw, 160px); height:auto; display:block; }
-/* ↑↑↑ */
-.brand .title{ font-weight:800; font-size:26px; }
-.brand .subtitle{ color:#444; margin-top:2px; }
-
-.toprow{ display:flex; justify-content:flex-end; gap:10px; }
-.lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
-
-.tabbar{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
-.tabbar button{ padding:10px 14px; border-radius:14px; border:1px solid #ddd; background:#f6f7fb; cursor:pointer; }
-.tabbar button.active{ background:#dfe2e8; border-color:#cfd4dc; }
-
-.content{ flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden; }
-.tab{ display:none; flex:1; overflow:auto; -webkit-overflow-scrolling:touch; }
-.tab.active{ display:block; }
-
-.card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-
-label{ display:block; margin:8px 0 6px; font-size:14px; color:#333; }
-input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none; }
-textarea{ resize:vertical; }
-.row{ display:flex; gap:10px; flex-wrap:wrap; }
-.grow{ flex:1; }
-
-/* Μεγάλα κουμπιά tablet */
-.controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; }
-.bigbtn{ flex:1; min-height:112px; font-size:26px; font-weight:800; border-radius:20px; }
-.in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d; }
-.out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff; }
-.in:active,.out:active{ filter:brightness(0.97); }
-@media (max-width:520px){ .bigbtn{ flex-basis:100%; } }
-
-table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
-th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left; }
-
-.hint{ color:#666; font-size:13px; margin-top:6px; }
-.status{ margin-top:8px; font-size:14px; }
-footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
-
-/* Modal PIN */
-#pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
-#pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
-#pinBox h3{ margin:0 0 8px 0; font-size:18px; }
-#pinMsg{ color:#b42318; font-size:13px; margin-top:8px; }
+*{box-sizing:border-box} body{margin:0;font:16px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:#fff}
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:12px;padding:14px var(--pad);background:#0f1e36;color:#fff}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px}
+.brand img{height:26px;width:auto}
+.lock-btn{margin-left:auto;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:10px 14px;background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+.lock-btn[aria-pressed="true"]{background:#c026d3}
+.wrap{padding:18px var(--pad) 80px}
+h1{margin:8px 0 4px;font-size:28px}
+.sub{color:#475569;margin:0 0 12px}
+.tabs{display:flex;gap:14px;overflow:auto;padding-bottom:10px;border-bottom:1px solid #e5e7eb}
+.tab{padding:10px 14px;border-radius:12px;background:#f5f7fb;color:#0f172a;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:#dbe7ff}
+.tab[disabled]{opacity:.45;cursor:not-allowed}
+.card{margin-top:16px;background:#fff;border:1px solid #eef2f7;border-radius:16px;box-shadow:var(--shadow);padding:16px}
+label{display:block;margin:10px 0 6px;color:#334155}
+.row{display:flex;gap:10px}
+.input{flex:1;display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;background:#fff}
+select,input[type=text]{width:100%;border:0;outline:0;font-size:16px;background:transparent}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:#f1f5f9;color:#0f172a}
+.actions{display:flex;gap:16px;margin-top:12px}
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:12px;font-weight:700;font-size:20px;border:2px solid transparent;border-radius:20px;padding:22px 16px;cursor:pointer;transition:transform .05s ease}
+.btn:active{transform:scale(.99)}
+.btn-in{background:var(--green-bg);border-color:#b7e4cb;color:#0b3f26}
+.btn-out{background:#2f6fe4;color:#fff}
+.btn[disabled]{opacity:.6;cursor:not-allowed}
+.btn .spinner{display:none;width:18px;height:18px;border:3px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.btn.wait .spinner{display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.last{margin-top:10px;font-size:14px;color:#334155}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:100;background:#0f172a;color:#fff;padding:12px 16px;border-radius:14px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s, transform .25s}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-6px)}
+.history{font-size:15px;margin-top:8px;color:#475569}
+.history ul{margin:8px 0 0;padding-left:16px}
 </style>
 </head>
 <body>
-<div class="viewport">
+<header class="topbar">
 <div class="brand">
-<!-- LOGO inline -->
-<svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 380" aria-label="Store 311 logo" role="img">
-<g fill="none" stroke="#000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-<path d="M165 58c-10-8-25-13-38-9-12 3-21 15-22 30-2 18 7 35 22 51 26 28 40 63 40 109"/>
-<path d="M95 290c6-28 19-53 45-63 18-7 36-3 51 12 16 17 24 40 24 70"/>
-<path d="M208 187c10 14 18 35 22 63"/>
-<path d="M133 86c9 26 44 40 77 41"/>
-</g>
-<g fill="#000" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" text-anchor="middle">
-<text x="150" y="300" font-size="50" font-weight="400" letter-spacing="1">Store</text>
-<text x="150" y="345" font-size="44" font-weight="400" letter-spacing="3">311</text>
-</g>
-</svg>
-<div class="title">Store311 Attendance</div>
-<div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
+<img src="logo.png" alt="Store311" />
+<span>Store311</span>
 </div>
+<button id="lockBtn" class="lock-btn" aria-pressed="false" title="Κλείδωμα">
+<span>🔒</span> Κλείδωμα
+</button>
+</header>
 
-<div class="toprow">
-<button class="lockbtn" id="lockBtn">Κλείδωμα</button>
-</div>
+<main class="wrap">
+<h1>Store311 Attendance</h1>
+<p class="sub">Σύστημα παρουσιών προσωπικού</p>
 
-<!-- υπόλοιπος κώδικας ίδιος -->
-<!-- (δεν χρειάζεται να αλλάξεις τίποτα άλλο κάτω από εδώ) -->
+<nav class="tabs" aria-label="Μενού">
+<button class="tab" data-tab="check" aria-selected="true">Χτύπημα</button>
+<button id="tabHistory" class="tab" data-tab="history">Ιστορική</button>
+<button id="tabReports" class="tab" data-tab="reports">Αναφορές</button>
+<button id="tabSettings" class="tab" data-tab="settings">Ρυθμίσεις</button>
+</nav>
+
+<section class="card">
+<label>Επιλέξτε εργαζόμενο / Προσθήκη</label>
+<div class="row">
+<div class="input">
+<select id="employee">
+<option>Giannis</option>
+<option>Maria</option>
+<option>Nikos</option>
+</select>
 </div>
+<div class="input"><input id="newName" type="text" placeholder="Νέο όνομα" /></div>
+</div>
+<div style="margin-top:8px">
+<button id="addBtn" class="pill">➕ Προσθέσε</button>
+</div>
+</section>
+
+<section class="card">
+<div class="history" id="storageNote">Καταχώριση IN/OUT – αποθήκευση τοπικά (offline) σε cloud</div>
+<label style="margin-top:12px">Σημείωση</label>
+<!-- (προαιρετικό textarea) -->
+<div class="actions">
+<button id="btnIn" class="btn btn-in" data-action="IN">
+<span class="spinner" aria-hidden="true"></span> ✓ IN – Είσοδος
+</button>
+<button id="btnOut" class="btn btn-out" data-action="OUT">
+<span class="spinner" aria-hidden="true"></span> ⬤ OUT – Αποχώρηση
+</button>
+</div>
+<div class="last" id="lastAction">Τελευταία ενέργεια: —</div>
+<div class="history">
+<strong>Πρόσφατες κινήσεις</strong>
+<ul id="recentList"></ul>
+</div>
+</section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+// ---- helpers
+const $ = s => document.querySelector(s);
+const formatTime = (d=new Date()) =>
+d.toLocaleString('el-GR', {hour:'2-digit', minute:'2-digit', day:'2-digit', month:'2-digit', year:'numeric'});
+
+// ---- lock behaviour: disables History/Reports/Settings tabs
+const lockBtn = $('#lockBtn');
+const lockableTabs = ['#tabHistory','#tabReports','#tabSettings'].map(s=>$(s));
+function setLocked(isLocked){
+lockBtn.setAttribute('aria-pressed', String(isLocked));
+lockableTabs.forEach(t=> t.disabled = isLocked);
+}
+lockBtn.addEventListener('click', () => setLocked(lockBtn.getAttribute('aria-pressed')!=='true'));
+
+// ---- local storage keys
+const LS_KEY = 'store311.attendance.events';
+
+// ---- load & render recent
+function getEvents(){
+try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+catch { return []; }
+}
+function saveEvent(ev){
+const arr = getEvents();
+arr.unshift(ev);
+localStorage.setItem(LS_KEY, JSON.stringify(arr.slice(0,50))); // κρατάμε τα 50 πιο πρόσφατα
+}
+function renderRecent(){
+const ul = $('#recentList'); ul.innerHTML='';
+getEvents().slice(0,6).forEach(e=>{
+const li=document.createElement('li');
+li.textContent = `${e.emp}: ${e.action} — ${e.time}`;
+ul.appendChild(li);
+});
+}
+
+// ---- employee add
+$('#addBtn').addEventListener('click', ()=>{
+const name = $('#newName').value.trim();
+if(!name) return;
+const opt = document.createElement('option'); opt.textContent=name;
+$('#employee').appendChild(opt); $('#employee').value=name; $('#newName').value='';
+showToast(`Προστέθηκε εργαζόμενος: ${name}`);
+});
+
+// ---- IN/OUT handlers with visual confirmation
+function disableDuring(btn, ms){
+btn.classList.add('wait'); btn.disabled = true;
+setTimeout(()=>{ btn.classList.remove('wait'); btn.disabled=false; }, ms);
+}
+function flashButton(btn, ok=true){
+const orig = btn.style.boxShadow;
+btn.style.boxShadow = ok ? '0 0 0 4px rgba(16,185,129,.35)' : '0 0 0 4px rgba(239,68,68,.35)';
+setTimeout(()=> btn.style.boxShadow = orig, 350);
+}
+function showToast(msg){
+const toast = $('#toast'); toast.textContent = msg;
+toast.classList.add('show'); setTimeout(()=> toast.classList.remove('show'), 2200);
+if(navigator.vibrate) navigator.vibrate(20);
+}
+function setLast(action, emp){
+$('#lastAction').textContent = `Τελευταία ενέργεια: ${emp} — ${action} (${formatTime()})`;
+}
+
+function handleAction(action){
+const emp = $('#employee').value;
+const btn = action==='IN' ? $('#btnIn') : $('#btnOut');
+disableDuring(btn, 700);
+flashButton(btn, true);
+const event = { emp, action, time: formatTime(), ts: Date.now() };
+saveEvent(event);
+renderRecent();
+setLast(action, emp);
+showToast(`${emp}: ${action} καταχωρήθηκε • ${event.time}`);
+}
+
+$('#btnIn').addEventListener('click', ()=> handleAction('IN'));
+$('#btnOut').addEventListener('click', ()=> handleAction('OUT'));
+
+// init
+setLocked(false);
+renderRecent();
+</script>
 </body>
 </html>
+
 
 
