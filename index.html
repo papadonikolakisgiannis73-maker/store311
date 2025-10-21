@@ -1,31 +1,42 @@
 <!doctype html>
 <html lang="el">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#ffffff">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Store311 Attendance</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ffffff">
 <style>
 :root { --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
 
+/* Ίδιο ύψος iOS/Android */
 html, body { height:-webkit-fill-available; }
 html, body {
 width:100%; margin:0; overflow:hidden; background:#fff; color:#111;
 font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
 }
 
-.viewport{
+.viewport {
 box-sizing:border-box;
-height:100dvh; width:100vw; margin:0;
+height:100dvh; width:100vw;
 padding:10px 20px 20px;
-display:flex; flex-direction:column; gap:14px; overflow:hidden;
+display:flex; flex-direction:column; gap:14px;
 }
 
-.brand{ display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:10px; }
-.brand svg { width:clamp(160px, 24vw, 240px); height:auto; display:block; margin-bottom:10px; }
-.brand .title{ font-weight:800; font-size:26px; }
-.brand .subtitle{ color:#444; margin-top:2px; }
+/* --- LOGO (όπως στο screenshot) --- */
+.brand {
+display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:6px;
+}
+.brand img {
+display:block;
+width: clamp(120px, 18vw, 160px);
+height:auto;
+margin:6px auto 10px;
+image-rendering:auto;
+-webkit-user-drag:none;
+}
+.brand .title { font-weight:800; font-size:26px; }
+.brand .subtitle { color:#444; margin-top:2px; }
 
 .toprow{ display:flex; justify-content:flex-end; gap:10px; }
 .lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
@@ -40,6 +51,7 @@ display:flex; flex-direction:column; gap:14px; overflow:hidden;
 .tab.active{ display:block; }
 
 .card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
+
 label{ display:block; margin:8px 0 6px; font-size:14px; color:#333; }
 input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none; }
 textarea{ resize:vertical; }
@@ -48,8 +60,8 @@ textarea{ resize:vertical; }
 
 .controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; }
 .bigbtn{ flex:1; min-height:112px; font-size:26px; font-weight:800; border-radius:20px; }
-.in{ background:#d9fbe4; border:1px solid var(--green-border); color:#14532d; }
-.out{ background:#3b82f6; border:1px solid var(--blue-border); color:#fff; }
+.in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d; }
+.out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff; }
 .in:active,.out:active{ filter:brightness(0.97); }
 @media (max-width:520px){ .bigbtn{ flex-basis:100%; } }
 
@@ -60,6 +72,7 @@ th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left; }
 .status{ margin-top:8px; font-size:14px; }
 footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 
+/* Modal PIN */
 #pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
 #pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
 #pinBox h3{ margin:0 0 8px 0; font-size:18px; }
@@ -70,19 +83,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <body>
 <div class="viewport">
 <div class="brand">
-<!-- inline logo (χωρίς εξωτερικό αρχείο) -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 380" aria-label="Store 311 logo" role="img">
-<g fill="none" stroke="#000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
-<path d="M165 58c-10-8-25-13-38-9-12 3-21 15-22 30-2 18 7 35 22 51 26 28 40 63 40 109"/>
-<path d="M95 290c6-28 19-53 45-63 18-7 36-3 51 12 16 17 24 40 24 70"/>
-<path d="M208 187c10 14 18 35 22 63"/>
-<path d="M133 86c9 26 44 40 77 41"/>
-</g>
-<g fill="#000" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" text-anchor="middle">
-<text x="150" y="300" font-size="50" font-weight="400" letter-spacing="1">Store</text>
-<text x="150" y="345" font-size="44" font-weight="400" letter-spacing="3">311</text>
-</g>
-</svg>
+<img id="logo" src="logo.png?v=7" alt="Store311 logo">
 <div class="title">Store311 Attendance</div>
 <div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
 </div>
@@ -99,7 +100,6 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 
 <div class="content">
-<!-- Χτύπημα -->
 <div class="card tab active" id="tab-punch">
 <div class="row">
 <div class="grow">
@@ -109,7 +109,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <input id="newname" placeholder="Νέο όνομα">
 <button id="add" class="small">Πρόσθεσε</button>
 </div>
-<div class="hint">Καταχώριση IN/OUT — offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
+<div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
 </div>
 <div>
 <label for="note">Σημείωση</label>
@@ -128,50 +128,47 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 </div>
 
-<!-- Ιστορικό -->
 <div class="card tab" id="tab-history">
 <div class="row" style="justify-content:space-between;align-items:center">
 <div class="grow"><label>Ιστορικό (πιο πρόσφατα πρώτα)</label></div>
 <div class="row">
 <input id="search" placeholder="αναζήτηση ονόματος/ημερομηνίας">
-<button id="exportBtn" class="small">Εξαγωγή CSV</button>
-<button id="downloadJson" class="small">Εξαγωγή JSON</button>
+<button id="exportBtn" class="small">CSV</button>
+<button id="downloadJson" class="small">JSON</button>
 <button id="clear" class="small">Καθάρισμα</button>
 </div>
 </div>
-<table id="logTable" aria-live="polite">
+<table id="logTable">
 <thead><tr><th>Όνομα</th><th>Ενέργεια</th><th>Ημ/νία</th><th>Ώρα</th><th>Σημειώσεις</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 
-<!-- Αναφορές -->
 <div class="card tab" id="tab-reports">
 <div class="row">
 <div><label>Μήνας</label><input id="rep-month" type="month"></div>
 <div><label>&nbsp;</label><button id="calc-month" class="small">Υπολογισμός</button></div>
 </div>
 <table id="reportTable">
-<thead><tr><th>Εργαζόμενος</th><th>Ημέρα</th><th>Ημ/νία</th><th>Συνολικές ώρες</th><th>Κατάσταση</th></tr></thead>
+<thead><tr><th>Εργαζόμενος</th><th>Ημέρα</th><th>Ημ/νία</th><th>Ώρες</th><th>Κατάσταση</th></tr></thead>
 <tbody></tbody>
 </table>
 </div>
 
-<!-- Ρυθμίσεις -->
 <div class="card tab" id="tab-settings">
 <label>Λίστα εργαζομένων</label>
-<div class="row"><textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea></div>
+<textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea>
 <div class="row">
 <div class="grow">
-<label>Webhook URL (Power Automate / Apps Script)</label>
+<label>Webhook URL</label>
 <input id="webhook" placeholder="επικόλλησε εδώ το Web App URL">
-<div class="hint">Στο OUT στέλνεται payload "session" (start/end/minutes/date) για Excel/Sheets.</div>
+<div class="hint">Στο OUT στέλνεται payload (start/end/minutes/date).</div>
 </div>
-<div><label>Ώρα έναρξης βάρδιας (π.χ. 09:00)</label><input id="shiftStart" placeholder="09:00"></div>
-<div><label>Ανοχή καθυστέρησης (λεπτά)</label><input id="grace" type="number" min="0" step="1" value="5"></div>
+<div><label>Ώρα έναρξης</label><input id="shiftStart" placeholder="09:00"></div>
+<div><label>Ανοχή καθυστέρησης</label><input id="grace" type="number" min="0" step="1" value="5"></div>
 </div>
 <div class="row">
-<button id="saveSettings">Αποθήκευση ρυθμίσεων</button>
+<button id="saveSettings">Αποθήκευση</button>
 <span class="hint" id="saveMsg"></span>
 </div>
 </div>
@@ -180,7 +177,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <footer>PWA offline • Cloud sync στο OUT • PIN-lock</footer>
 </div>
 
-<!-- PIN modal -->
+<!-- Modal PIN -->
 <div id="pinModal">
 <div id="pinBox">
 <h3 id="pinTitle">Κωδικός διαχειριστή</h3>
@@ -193,204 +190,6 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 </div>
 
-<script>
-/* Storage helpers */
-const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', STATE_KEY='att_state_v1', ADMIN_KEY='store311_admin_hash';
-const $=(s,p=document)=>p.querySelector(s);
-const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
-const load=(k,d)=>{const r=localStorage.getItem(k);return r?JSON.parse(r):d}
-const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v))
-const getLog=()=>load(LOG_KEY,[])
-const setLog=v=>save(LOG_KEY,v)
-const settings=()=>load(SET_KEY,{names:[], webhook:'', shiftStart:'09:00', grace:5})
-const saveSettingsObj=o=>save(SET_KEY,o)
-const toParts=iso=>{const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}}
-const makeEntry=(name,action,note)=>{const iso=new Date().toISOString(); const p=toParts(iso); return {id:Math.random().toString(36).slice(2), name, action, iso, date:p.date, time:p.time, note:note||''}}
-
-/* PIN lock (auto-lock 2') */
-let adminUnlockedUntil=0; const autoLockMs=2*60*1000;
-const now =()=>Date.now()
-const isAdminUnlocked =()=>now()<adminUnlockedUntil
-const touchAdmin =()=>adminUnlockedUntil=now()+autoLockMs
-async function sha256(s){const enc=new TextEncoder().encode(s);const buf=await crypto.subtle.digest('SHA-256',enc);return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')}
-function showPinModal(promptSet=false){return new Promise((res)=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=promptSet?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=(e)=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
-async function requireAdmin(){ if(isAdminUnlocked()){touchAdmin();return true} let saved=localStorage.getItem(ADMIN_KEY); if(!saved){const first=await showPinModal(true); if(!first)return false; const h=await sha256(first); localStorage.setItem(ADMIN_KEY,h); touchAdmin(); return true} const pin=await showPinModal(false); if(!pin)return false; const ok=(await sha256(pin))===saved; if(ok){touchAdmin();return true} pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false}
-lockBtn.addEventListener('click',()=>{adminUnlockedUntil=0});
-['click','touchstart','keydown','mousemove'].forEach(evt=>addEventListener(evt,()=>{if(isAdminUnlocked())touchAdmin()},{passive:true}));
-
-/* Tabs (guarded) */
-$$('.tabbtn').forEach(btn=>{
-btn.addEventListener('click', async ()=>{
-const needAdmin = btn.classList.contains('guard');
-if(needAdmin && !(await requireAdmin())) return;
-$$('.tabbtn').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
-$$('.tab').forEach(x=>x.classList.remove('active')); $('#tab-'+btn.dataset.tab).classList.add('active');
-if(btn.dataset.tab==='history') renderLog();
-});
-});
-
-/* Init employees + settings UI */
-function refreshEmployees(){
-const s=settings();
-const sel=$("#employee"); sel.innerHTML='';
-s.names.forEach(n=>{const o=document.createElement('option'); o.value=o.textContent=n; sel.appendChild(o);});
-if(!s.names.length){ const o=document.createElement('option'); o.textContent='—'; sel.appendChild(o); }
-$("#names").value = s.names.join('\n');
-$("#webhook").value = s.webhook||'';
-$("#shiftStart").value = s.shiftStart||'09:00';
-$("#grace").value = s.grace??5;
-}
-
-$("#add").addEventListener('click', ()=>{
-const name=$("#newname").value.trim(); if(!name) return;
-const s=settings(); if(!s.names.includes(name)) s.names.push(name);
-saveSettingsObj(s); $("#newname").value=''; refreshEmployees();
-$("#statusRow").textContent = `Προστέθηκε ο/η ${name}.`;
-});
-
-$("#saveSettings").addEventListener('click', ()=>{
-const s=settings();
-s.names = $("#names").value.split('\n').map(x=>x.trim()).filter(Boolean);
-s.webhook = $("#webhook").value.trim();
-s.shiftStart = $("#shiftStart").value.trim() || '09:00';
-s.grace = Math.max(0, parseInt($("#grace").value||'5',10));
-saveSettingsObj(s); $("#saveMsg").textContent='Αποθηκεύτηκαν.'; refreshEmployees();
-setTimeout(()=>$("#saveMsg").textContent='',1500);
-});
-
-/* Punch logic + cloud sync on OUT */
-function lastActionFor(name){
-const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));
-return log[0]?.action || null;
-}
-
-async function sendWebhookIfAny(payload){
-try{
-const url=settings().webhook;
-if(!url) return;
-await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-}catch(e){ /* ignore */ }
-}
-
-const minutesBetween=(aIso,bIso)=>Math.max(0,Math.round((new Date(bIso)-new Date(aIso))/60000));
-const prettyHours = mins => `${Math.floor(mins/60)}:${String(mins%60).padStart(2,'0')}`;
-
-function renderLog(){
-const q=$("#search").value.trim().toLowerCase();
-const tbody=$("#logTable tbody"); tbody.innerHTML='';
-const rows=[...getLog()].sort((a,b)=>b.iso.localeCompare(a.iso));
-rows.forEach(r=>{
-const hay=(r.name+' '+r.date).toLowerCase();
-if(q && !hay.includes(q)) return;
-const tr=document.createElement('tr');
-tr.innerHTML=`<td>${r.name}</td><td>${r.action}</td><td>${r.date}</td><td>${r.time}</td><td>${r.note||''}</td>`;
-tbody.appendChild(tr);
-});
-}
-$("#search").addEventListener('input', renderLog);
-
-$("#exportBtn").addEventListener('click', ()=>{
-const rows=[["name","action","iso","date","time","note"], ...getLog().map(r=>[r.name,r.action,r.iso,r.date,r.time,r.note||""])];
-const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
-const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='attendance.csv'; a.click();
-});
-
-$("#downloadJson").addEventListener('click', ()=>{
-const blob=new Blob([JSON.stringify(getLog(),null,2)],{type:'application/json'});
-const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='attendance.json'; a.click();
-});
-
-$("#clear").addEventListener('click', async ()=>{
-if(!(await requireAdmin())) return;
-if(!confirm('Σίγουρα διαγραφή όλων;')) return;
-setLog([]); renderLog();
-});
-
-function updateLastStatus(name){
-const la=lastActionFor(name);
-$("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —';
-}
-
-function punch(action){
-const name=$("#employee").value;
-if(!name || name==='—'){ $("#statusRow").textContent='Διάλεξε εργαζόμενο.'; return; }
-const note=$("#note").value.trim();
-const entry=makeEntry(name,action,note);
-const log=getLog(); log.push(entry); setLog(log);
-$("#statusRow").textContent = `${name} • ${action} • ${entry.date} ${entry.time}${note?` • ${note}`:''}`;
-updateLastStatus(name);
-
-// Αν είναι OUT, στείλε session στο cloud
-if(action==='OUT'){
-const rows = log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
-const lastIn=[...rows].reverse().find(x=>x.action==='IN');
-if(lastIn){
-const mins=minutesBetween(lastIn.iso, entry.iso);
-const payload={type:'session', name, start:lastIn.iso, end:entry.iso, minutes:mins, date:entry.date};
-sendWebhookIfAny(payload);
-}
-}
-$("#note").value='';
-}
-
-$("#punchIn").addEventListener('click',()=>punch('IN'));
-$("#punchOut").addEventListener('click',()=>punch('OUT'));
-$("#employee").addEventListener('change', e=>updateLastStatus(e.target.value));
-
-/* Reports */
-$("#calc-month").addEventListener('click', ()=>{
-const month=$("#rep-month").value; if(!month){ alert('Διάλεξε μήνα.'); return; }
-const [y,m]=month.split('-').map(Number);
-const start=new Date(y,m-1,1), end=new Date(y,m,1);
-const rows=getLog().filter(r=>{const d=new Date(r.iso); return d>=start && d<end;})
-.sort((a,b)=>a.iso.localeCompare(b.iso));
-
-const map=new Map(); // key: name|YYYY-MM-DD
-for(const r of rows){
-const d=new Date(r.iso), key=`${r.name}|${d.toISOString().slice(0,10)}`;
-if(!map.has(key)) map.set(key,[]);
-map.get(key).push(r);
-}
-
-const out=[];
-for(const [key, arr] of map){
-arr.sort((a,b)=>a.iso.localeCompare(b.iso));
-let minutes=0;
-for(let i=0;i<arr.length;i++){
-if(arr[i].action==='IN'){
-const outIdx=arr.slice(i+1).findIndex(x=>x.action==='OUT');
-if(outIdx>-1){ const outRow=arr[i+1+outIdx]; minutes+=minutesBetween(arr[i].iso,outRow.iso); i=i+outIdx; }
-}
-}
-const [name, day]=key.split('|');
-const dateParts=(new Date(day)).toLocaleDateString('el-GR');
-const weekday=new Date(day).toLocaleDateString('el-GR',{weekday:'long'});
-const status = minutes>0 ? 'OK' : 'Απουσία/Ανολοκλήρωτο';
-out.push({name, weekday, date:dateParts, minutes, status});
-}
-
-const tbody=$("#reportTable tbody"); tbody.innerHTML='';
-out.sort((a,b)=>a.name.localeCompare(b.name)||a.date.localeCompare(b.date))
-.forEach(r=>{
-const tr=document.createElement('tr');
-tr.innerHTML=`<td>${r.name}</td><td>${r.weekday}</td><td>${r.date}</td>
-<td>${Math.floor(r.minutes/60)}:${String(r.minutes%60).padStart(2,'0')}</td>
-<td>${r.status}</td>`;
-tbody.appendChild(tr);
-});
-});
-
-/* Bootstrap */
-(function init(){
-const s=settings(); if(!Array.isArray(s.names)) s.names=[];
-saveSettingsObj(s); refreshEmployees(); updateLastStatus($("#employee").value);
-
-// PWA service worker
-if('serviceWorker' in navigator){
-navigator.serviceWorker.register('./sw.js').catch(()=>{});
-}
-})();
-</script>
+<script src="sw.js"></script>
 </body>
 </html>
