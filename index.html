@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="el">
 <head>
-<!-- PWA manifest + theme -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ffffff">
 <meta charset="utf-8">
@@ -10,8 +9,7 @@
 <style>
 :root { --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
 
-/* Ίδιο ύψος iOS/Android */
-html, body { height: -webkit-fill-available; }
+html, body { height:-webkit-fill-available; }
 html, body {
 width:100%; margin:0; overflow:hidden; background:#fff; color:#111;
 font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
@@ -19,14 +17,13 @@ font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
 
 .viewport{
 box-sizing:border-box;
-height:100dvh; width:100vw; max-width:none; margin:0;
+height:100dvh; width:100vw; margin:0;
 padding:10px 20px 20px;
 display:flex; flex-direction:column; gap:14px; overflow:hidden;
 }
 
 .brand{ display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:10px; }
-/* μικρό & κομψό logo όπως στο screenshot σου */
-.brand svg{ width:clamp(180px, 25vw, 240px); height:auto; display:block; margin-bottom:10px; }
+.brand svg { width:clamp(160px, 24vw, 240px); height:auto; display:block; margin-bottom:10px; }
 .brand .title{ font-weight:800; font-size:26px; }
 .brand .subtitle{ color:#444; margin-top:2px; }
 
@@ -49,11 +46,10 @@ textarea{ resize:vertical; }
 .row{ display:flex; gap:10px; flex-wrap:wrap; }
 .grow{ flex:1; }
 
-/* Μεγάλα κουμπιά tablet */
 .controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; }
 .bigbtn{ flex:1; min-height:112px; font-size:26px; font-weight:800; border-radius:20px; }
-.in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d; }
-.out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff; }
+.in{ background:#d9fbe4; border:1px solid var(--green-border); color:#14532d; }
+.out{ background:#3b82f6; border:1px solid var(--blue-border); color:#fff; }
 .in:active,.out:active{ filter:brightness(0.97); }
 @media (max-width:520px){ .bigbtn{ flex-basis:100%; } }
 
@@ -64,17 +60,29 @@ th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left; }
 .status{ margin-top:8px; font-size:14px; }
 footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 
-/* Modal PIN */
 #pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
 #pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
 #pinBox h3{ margin:0 0 8px 0; font-size:18px; }
 #pinMsg{ color:#b42318; font-size:13px; margin-top:8px; }
 </style>
 </head>
+
 <body>
 <div class="viewport">
 <div class="brand">
-<img id="logo" src="logo.png?v=5" alt="Store311 logo">
+<!-- inline logo (χωρίς εξωτερικό αρχείο) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 380" aria-label="Store 311 logo" role="img">
+<g fill="none" stroke="#000" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+<path d="M165 58c-10-8-25-13-38-9-12 3-21 15-22 30-2 18 7 35 22 51 26 28 40 63 40 109"/>
+<path d="M95 290c6-28 19-53 45-63 18-7 36-3 51 12 16 17 24 40 24 70"/>
+<path d="M208 187c10 14 18 35 22 63"/>
+<path d="M133 86c9 26 44 40 77 41"/>
+</g>
+<g fill="#000" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif" text-anchor="middle">
+<text x="150" y="300" font-size="50" font-weight="400" letter-spacing="1">Store</text>
+<text x="150" y="345" font-size="44" font-weight="400" letter-spacing="3">311</text>
+</g>
+</svg>
 <div class="title">Store311 Attendance</div>
 <div class="subtitle">Σύστημα παρουσιών προσωπικού</div>
 </div>
@@ -101,7 +109,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <input id="newname" placeholder="Νέο όνομα">
 <button id="add" class="small">Πρόσθεσε</button>
 </div>
-<div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
+<div class="hint">Καταχώριση IN/OUT — offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
 </div>
 <div>
 <label for="note">Σημείωση</label>
@@ -188,14 +196,12 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <script>
 /* Storage helpers */
 const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', STATE_KEY='att_state_v1', ADMIN_KEY='store311_admin_hash';
-const $ = (s,p=document)=>p.querySelector(s);
-const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
+const $=(s,p=document)=>p.querySelector(s);
+const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
 const load=(k,d)=>{const r=localStorage.getItem(k);return r?JSON.parse(r):d}
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v))
-const getLog =()=>load(LOG_KEY,[])
-const setLog =v=>save(LOG_KEY,v)
-const getState=()=>load(STATE_KEY,{})
-const setState=s=>save(STATE_KEY,s)
+const getLog=()=>load(LOG_KEY,[])
+const setLog=v=>save(LOG_KEY,v)
 const settings=()=>load(SET_KEY,{names:[], webhook:'', shiftStart:'09:00', grace:5})
 const saveSettingsObj=o=>save(SET_KEY,o)
 const toParts=iso=>{const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}}
@@ -253,10 +259,10 @@ setTimeout(()=>$("#saveMsg").textContent='',1500);
 });
 
 /* Punch logic + cloud sync on OUT */
-const lastActionFor = name => {
+function lastActionFor(name){
 const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));
 return log[0]?.action || null;
-};
+}
 
 async function sendWebhookIfAny(payload){
 try{
@@ -315,7 +321,7 @@ const log=getLog(); log.push(entry); setLog(log);
 $("#statusRow").textContent = `${name} • ${action} • ${entry.date} ${entry.time}${note?` • ${note}`:''}`;
 updateLastStatus(name);
 
-// OUT => στείλε στο cloud session (start/end/minutes/date)
+// Αν είναι OUT, στείλε session στο cloud
 if(action==='OUT'){
 const rows = log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
 const lastIn=[...rows].reverse().find(x=>x.action==='IN');
@@ -328,7 +334,7 @@ sendWebhookIfAny(payload);
 $("#note").value='';
 }
 
-$("#punchIn"). addEventListener('click',()=>punch('IN'));
+$("#punchIn").addEventListener('click',()=>punch('IN'));
 $("#punchOut").addEventListener('click',()=>punch('OUT'));
 $("#employee").addEventListener('change', e=>updateLastStatus(e.target.value));
 
@@ -358,7 +364,7 @@ if(outIdx>-1){ const outRow=arr[i+1+outIdx]; minutes+=minutesBetween(arr[i].iso,
 }
 }
 const [name, day]=key.split('|');
-const dateParts=toParts(day+'T00:00:00Z').date;
+const dateParts=(new Date(day)).toLocaleDateString('el-GR');
 const weekday=new Date(day).toLocaleDateString('el-GR',{weekday:'long'});
 const status = minutes>0 ? 'OK' : 'Απουσία/Ανολοκλήρωτο';
 out.push({name, weekday, date:dateParts, minutes, status});
@@ -368,7 +374,9 @@ const tbody=$("#reportTable tbody"); tbody.innerHTML='';
 out.sort((a,b)=>a.name.localeCompare(b.name)||a.date.localeCompare(b.date))
 .forEach(r=>{
 const tr=document.createElement('tr');
-tr.innerHTML=`<td>${r.name}</td><td>${r.weekday}</td><td>${r.date}</td><td>${Math.floor(r.minutes/60)}:${String(r.minutes%60).padStart(2,'0')}</td><td>${r.status}</td>`;
+tr.innerHTML=`<td>${r.name}</td><td>${r.weekday}</td><td>${r.date}</td>
+<td>${Math.floor(r.minutes/60)}:${String(r.minutes%60).padStart(2,'0')}</td>
+<td>${r.status}</td>`;
 tbody.appendChild(tr);
 });
 });
@@ -378,7 +386,7 @@ tbody.appendChild(tr);
 const s=settings(); if(!Array.isArray(s.names)) s.names=[];
 saveSettingsObj(s); refreshEmployees(); updateLastStatus($("#employee").value);
 
-// Service worker (χωρίς επιθετικό cache)
+// PWA service worker
 if('serviceWorker' in navigator){
 navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
