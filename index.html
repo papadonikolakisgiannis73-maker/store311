@@ -58,11 +58,42 @@ textarea{ resize:vertical; }
 .row{ display:flex; gap:10px; flex-wrap:wrap; }
 .grow{ flex:1; }
 
-.controls{ display:flex; gap:20px; flex-wrap:wrap; margin-top:10px; }
-.bigbtn{ flex:1; min-height:112px; font-size:26px; font-weight:800; border-radius:20px; }
-.in{ background:#d9fbe4; border:1px solid #b8f0c8; color:#14532d; }
-.out{ background:#3b82f6; border:1px solid #1d4ed8; color:#fff; }
-.in:active,.out:active{ filter:brightness(0.97); }
+.controls {
+display: flex;
+gap: 28px;
+flex-wrap: wrap;
+justify-content: center;
+margin-top: 14px;
+}
+
+.bigbtn {
+flex: 1;
+min-height: 140px; /* πιο ψηλό */
+font-size: 32px; /* πιο μεγάλο */
+font-weight: 900;
+border-radius: 24px;
+transition: all 0.15s ease;
+box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+}
+
+.in {
+background: linear-gradient(180deg,#d7fbe4 0%,#b6efc8 100%);
+border: 2px solid #9ce3b4;
+color: #064e3b;
+}
+
+.out {
+background: linear-gradient(180deg,#3b82f6 0%,#1d4ed8 100%);
+border: 2px solid #1e3a8a;
+color: #fff;
+}
+
+/* πιο έντονο “πάτημα” */
+.in:active, .out:active {
+transform: scale(0.97);
+box-shadow: 0 3px 8px rgba(0,0,0,0.25) inset;
+filter: brightness(0.95);
+}
 @media (max-width:520px){ .bigbtn{ flex-basis:100%; } }
 
 table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
