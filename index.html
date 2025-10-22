@@ -190,6 +190,183 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 </div>
 
-<script src="sw.js"></script>
+<script>
+/* ====== Storage helpers ====== */
+const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', ADMIN_KEY='store311_admin_hash';
+const $=(s,p=document)=>p.querySelector(s);
+const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
+const load=(k,d)=>{try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}catch{return d}}
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+const getLog=()=>load(LOG_KEY,[]);
+const setLog=v=>save(LOG_KEY,v);
+const settings=()=>load(SET_KEY,{names:[], webhook:'', shiftStart:'09:00', grace:5});
+const saveSettingsObj=o=>save(SET_KEY,o);
+const toParts=iso=>{const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}};
+const makeEntry=(name,action,note)=>{const iso=new Date().toISOString();const p=toParts(iso);return{id:Math.random().toString(36).slice(2),name,action,iso,date:p.date,time:p.time,note:note||''}};
+
+/* ====== PIN lock (auto-lock 2') ====== */
+let adminUnlockedUntil=0; const autoLockMs=2*60*1000;
+const now=()=>Date.now(), isAdminUnlocked=()=>now()<adminUnlockedUntil, touchAdmin=()=>adminUnlockedUntil=now()+autoLockMs;
+async function sha256(s){const e=new TextEncoder().encode(s);const b=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+function showPinModal(setMode=false){return new Promise(res=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=setMode?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=e=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
+async function requireAdmin(){
+if(isAdminUnlocked()){touchAdmin();return true}
+let saved=localStorage.getItem(ADMIN_KEY);
+if(!saved){const first=await showPinModal(true); if(!first)return false; const h=await sha256(first); localStorage.setItem(ADMIN_KEY,h); touchAdmin(); return true}
+const pin=await showPinModal(false); if(!pin)return false;
+const ok=(await sha256(pin))===saved; if(ok){touchAdmin();return true}
+pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false;
+}
+lockBtn.addEventListener('click',()=>{adminUnlockedUntil=0});
+['click','touchstart','keydown','mousemove'].forEach(evt=>addEventListener(evt,()=>{if(isAdminUnlocked())touchAdmin()},{passive:true}));
+
+/* ====== Tabs (guarded) ====== */
+$$('.tabbtn').forEach(btn=>{
+btn.addEventListener('click', async ()=>{
+const needAdmin=btn.classList.contains('guard');
+if(needAdmin && !(await requireAdmin())) return;
+$$('.tabbtn').forEach(x=>x.classList.remove('active')); btn.classList.add('active');
+$$('.tab').forEach(x=>x.classList.remove('active')); const tab=$('#tab-'+btn.dataset.tab); if(tab) tab.classList.add('active');
+if(btn.dataset.tab==='history') renderLog();
+});
+});
+
+/* ====== Init employees + settings UI ====== */
+function refreshEmployees(){
+const s=settings(); const sel=$("#employee"); sel.innerHTML='';
+if(s.names.length===0){ s.names=['Γιώργος','Μαρία']; saveSettingsObj(s); }
+s.names.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;sel.appendChild(o)});
+$("#names").value=s.names.join('\n');
+$("#webhook").value=s.webhook||'';
+$("#shiftStart").value=s.shiftStart||'09:00';
+$("#grace").value=s.grace??5;
+}
+$("#add").addEventListener('click', ()=>{
+const name=$("#newname").value.trim(); if(!name) return;
+const s=settings(); if(!s.names.includes(name)) s.names.push(name); saveSettingsObj(s);
+$("#newname").value=''; refreshEmployees(); $("#statusRow").textContent=`Προστέθηκε ο/η ${name}.`;
+});
+$("#saveSettings").addEventListener('click', ()=>{
+const s=settings();
+s.names=$("#names").value.split('\n').map(x=>x.trim()).filter(Boolean);
+s.webhook=$("#webhook").value.trim();
+s.shiftStart=$("#shiftStart").value.trim()||'09:00';
+s.grace=Math.max(0, parseInt($("#grace").value||'5',10));
+saveSettingsObj(s); $("#saveMsg").textContent='Αποθηκεύτηκαν.'; refreshEmployees(); setTimeout(()=>$("#saveMsg").textContent='',1500);
+});
+
+/* ====== Punch logic + cloud sync on OUT ====== */
+function lastActionFor(name){const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));return log[0]?.action||null}
+async function sendWebhookIfAny(payload){
+try{const url=settings().webhook; if(!url) return; await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}
+catch(e){ /* ignore network errors */ }
+}
+const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
+
+function updateLastStatus(name){
+const la=lastActionFor(name);
+$("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —';
+}
+function punch(action){
+const name=$("#employee").value;
+if(!name || name==='—'){ $("#statusRow").textContent='Διάλεξε εργαζόμενο.'; return; }
+const note=$("#note").value.trim();
+const entry=makeEntry(name,action,note);
+const log=getLog(); log.push(entry); setLog(log);
+$("#statusRow").textContent = `${name} • ${action} • ${entry.date} ${entry.time}${note?` • ${note}`:''}`;
+updateLastStatus(name);
+
+if(action==='OUT'){
+const rows=log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
+const lastIn=[...rows].reverse().find(x=>x.action==='IN');
+if(lastIn){
+const mins=minutesBetween(lastIn.iso, entry.iso);
+sendWebhookIfAny({type:'session', name, start:lastIn.iso, end:entry.iso, minutes:mins, date:entry.date});
+}
+}
+$("#note").value='';
+}
+$("#punchIn").addEventListener('click',()=>punch('IN'));
+$("#punchOut").addEventListener('click',()=>punch('OUT'));
+$("#employee").addEventListener('change',e=>updateLastStatus(e.target.value));
+
+/* ====== History ====== */
+function renderLog(){
+const q=$("#search").value.trim().toLowerCase();
+const tbody=$("#logTable tbody"); if(!tbody) return; tbody.innerHTML='';
+const rows=[...getLog()].sort((a,b)=>b.iso.localeCompare(a.iso));
+rows.forEach(r=>{
+const hay=(r.name+' '+r.date+' '+r.time+' '+(r.note||'')).toLowerCase();
+if(q && !hay.includes(q)) return;
+const tr=document.createElement('tr');
+tr.innerHTML=`<td>${r.name}</td><td>${r.action}</td><td>${r.date}</td><td>${r.time}</td><td>${r.note||''}</td>`;
+tbody.appendChild(tr);
+});
+}
+$("#search")?.addEventListener('input', renderLog);
+$("#exportBtn")?.addEventListener('click', ()=>{
+const rows=[["name","action","iso","date","time","note"], ...getLog().map(r=>[r.name,r.action,r.iso,r.date,r.time,r.note||""])];
+const csv=rows.map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(',')).join('\n');
+const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='attendance.csv'; a.click();
+});
+$("#downloadJson")?.addEventListener('click', ()=>{
+const blob=new Blob([JSON.stringify(getLog(),null,2)],{type:'application/json'});
+const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='attendance.json'; a.click();
+});
+$("#clear")?.addEventListener('click', async ()=>{
+if(!(await requireAdmin())) return;
+if(!confirm('Σίγουρα διαγραφή όλων;')) return;
+setLog([]); renderLog();
+});
+
+/* ====== Reports ====== */
+$("#calc-month")?.addEventListener('click', ()=>{
+const month=$("#rep-month").value; if(!month){ alert('Διάλεξε μήνα.'); return; }
+const [y,m]=month.split('-').map(Number);
+const start=new Date(y,m-1,1), end=new Date(y,m,1);
+const rows=getLog().filter(r=>{const d=new Date(r.iso); return d>=start && d<end;}).sort((a,b)=>a.iso.localeCompare(b.iso));
+
+const map=new Map(); // key: name|YYYY-MM-DD
+for(const r of rows){ const d=new Date(r.iso), key=`${r.name}|${d.toISOString().slice(0,10)}`; if(!map.has(key)) map.set(key,[]); map.get(key).push(r); }
+
+const out=[];
+for(const [key, arr] of map){
+arr.sort((a,b)=>a.iso.localeCompare(b.iso));
+let minutes=0;
+for(let i=0;i<arr.length;i++){
+if(arr[i].action==='IN'){
+const outIdx=arr.slice(i+1).findIndex(x=>x.action==='OUT');
+if(outIdx>-1){ const outRow=arr[i+1+outIdx]; minutes+=minutesBetween(arr[i].iso,outRow.iso); i=i+outIdx; }
+}
+}
+const [name, day]=key.split('|');
+const dateParts=(new Date(day)).toLocaleDateString('el-GR');
+const weekday=(new Date(day)).toLocaleDateString('el-GR',{weekday:'long'});
+const status = minutes>0 ? 'OK' : 'Απουσία/Ανολοκλήρωτο';
+out.push({name, weekday, date:dateParts, minutes, status});
+}
+
+const tbody=$("#reportTable tbody"); tbody.innerHTML='';
+out.sort((a,b)=>a.name.localeCompare(b.name)||a.date.localeCompare(b.date))
+.forEach(r=>{
+const tr=document.createElement('tr');
+tr.innerHTML=`<td>${r.name}</td><td>${r.weekday}</td><td>${r.date}</td>
+<td>${Math.floor(r.minutes/60)}:${String(r.minutes%60).padStart(2,'0')}</td>
+<td>${r.status}</td>`;
+tbody.appendChild(tr);
+});
+});
+
+/* ====== Bootstrap ====== */
+(function init(){
+if('serviceWorker' in navigator){
+// κάνε update την έκδοση στο sw.js (π.χ. store311-v7) για να σπάσει cache όταν χρειάζεται
+navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+const s=settings(); if(!Array.isArray(s.names)) saveSettingsObj({names:[], webhook:'', shiftStart:'09:00', grace:5});
+refreshEmployees(); updateLastStatus($("#employee").value);
+})();
+</script>
 </body>
 </html>
