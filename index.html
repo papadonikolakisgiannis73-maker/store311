@@ -23,7 +23,7 @@ padding:10px 20px 20px;
 display:flex; flex-direction:column; gap:14px;
 }
 
-/* --- LOGO (όπως στο screenshot) --- */
+/* --- LOGO --- */
 .brand {
 display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:6px;
 }
@@ -51,7 +51,6 @@ image-rendering:auto;
 .tab.active{ display:block; }
 
 .card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
-
 label{ display:block; margin:8px 0 6px; font-size:14px; color:#333; }
 input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none; }
 textarea{ resize:vertical; }
@@ -65,30 +64,25 @@ flex-wrap: wrap;
 justify-content: center;
 margin-top: 14px;
 }
-
 .bigbtn {
 flex: 1;
-min-height: 140px; /* πιο ψηλό */
-font-size: 32px; /* πιο μεγάλο */
+min-height: 140px;
+font-size: 32px;
 font-weight: 900;
 border-radius: 24px;
 transition: all 0.15s ease;
 box-shadow: 0 6px 14px rgba(0,0,0,0.1);
 }
-
 .in {
 background: linear-gradient(180deg,#d7fbe4 0%,#b6efc8 100%);
 border: 2px solid #9ce3b4;
 color: #064e3b;
 }
-
 .out {
 background: linear-gradient(180deg,#3b82f6 0%,#1d4ed8 100%);
 border: 2px solid #1e3a8a;
 color: #fff;
 }
-
-/* πιο έντονο “πάτημα” */
 .in:active, .out:active {
 transform: scale(0.97);
 box-shadow: 0 3px 8px rgba(0,0,0,0.25) inset;
@@ -140,7 +134,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <input id="newname" placeholder="Νέο όνομα">
 <button id="add" class="small">Πρόσθεσε</button>
 </div>
-<div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud (αν έχεις Webhook URL).</div>
+<div class="hint">Καταχώριση IN/OUT — αποθήκευση offline & αποστολή στο cloud.</div>
 </div>
 <div>
 <label for="note">Σημείωση</label>
@@ -191,9 +185,9 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea>
 <div class="row">
 <div class="grow">
-<label>Webhook URL</label>
-<input id="webhook" placeholder="επικόλλησε εδώ το Web App URL">
-<div class="hint">Στο OUT στέλνεται payload (start/end/minutes/date).</div>
+<label>Webhook URL (προαιρετικό — αν το αφήσεις κενό, θα χρησιμοποιηθεί το προεπιλεγμένο)</label>
+<input id="webhook" placeholder="επικόλλησε εδώ άλλο Web App URL αν θέλεις">
+<div class="hint">Στο OUT στέλνεται payload (start/end/minutes/date/note/type).</div>
 </div>
 <div><label>Ώρα έναρξης</label><input id="shiftStart" placeholder="09:00"></div>
 <div><label>Ανοχή καθυστέρησης</label><input id="grace" type="number" min="0" step="1" value="5"></div>
@@ -220,6 +214,12 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <div id="pinMsg"></div>
 </div>
 </div>
+
+<script>
+/* ===== Default Google Apps Script URL (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ) ===== */
+const DEFAULT_WEB_APP_URL="https://script.google.com/macros/s/AKfycbwS1XWOp_7SzLPm7y2bZBkmGUHsDtapr21NVH7Bx71sAJ_7abuO8pXMjYBXKTArQX1z/exec?token=store311_2025_secure_token_93hfuWvL8p7Zt!xA";
+/* ============================================================ */
+</script>
 
 <script>
 /* ====== Storage helpers ====== */
@@ -288,10 +288,29 @@ saveSettingsObj(s); $("#saveMsg").textContent='Αποθηκεύτηκαν.'; ref
 
 /* ====== Punch logic + cloud sync on OUT ====== */
 function lastActionFor(name){const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));return log[0]?.action||null}
-async function sendWebhookIfAny(payload){
-try{const url=settings().webhook; if(!url) return; await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})}
-catch(e){ /* ignore network errors */ }
+
+/* Χρησιμοποιεί πρώτα το πεδίο Ρυθμίσεις → Webhook URL, αλλιώς πέφτει στο DEFAULT_WEB_APP_URL */
+function getWebhookUrl(){
+const s = settings();
+const u = (s.webhook||'').trim();
+if (u && u.startsWith('http')) return u;
+return DEFAULT_WEB_APP_URL; // <- βάλε σωστό URL επάνω
 }
+
+async function sendWebhookIfAny(payload){
+try{
+const url = getWebhookUrl();
+if(!url){ return; }
+await fetch(url, {
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body: JSON.stringify(payload)
+});
+}catch(e){
+console.log('Error sending to Google Sheet', e);
+}
+}
+
 const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
 
 function updateLastStatus(name){
@@ -312,7 +331,7 @@ const rows=log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
 const lastIn=[...rows].reverse().find(x=>x.action==='IN');
 if(lastIn){
 const mins=minutesBetween(lastIn.iso, entry.iso);
-sendWebhookIfAny({type:'session', name, start:lastIn.iso, end:entry.iso, minutes:mins, date:entry.date});
+sendWebhookIfAny({type:'session', name, start:lastIn.iso, end:entry.iso, minutes:mins, date:entry.date, note});
 }
 }
 $("#note").value='';
@@ -392,7 +411,6 @@ tbody.appendChild(tr);
 /* ====== Bootstrap ====== */
 (function init(){
 if('serviceWorker' in navigator){
-// κάνε update την έκδοση στο sw.js (π.χ. store311-v7) για να σπάσει cache όταν χρειάζεται
 navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 const s=settings(); if(!Array.isArray(s.names)) saveSettingsObj({names:[], webhook:'', shiftStart:'09:00', grace:5});
