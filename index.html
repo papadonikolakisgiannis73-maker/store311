@@ -298,16 +298,23 @@ return DEFAULT_WEB_APP_URL; // <- βάλε σωστό URL επάνω
 }
 
 async function sendWebhookIfAny(payload){
+const url = settings().webhook;
+if(!url){
+document.getElementById('statusRow').textContent = 'Cloud: λείπει το Webhook URL.';
+return;
+}
 try{
-const url = getWebhookUrl();
-if(!url){ return; }
-await fetch(url, {
+const res = await fetch(url, {
 method:'POST',
 headers:{'Content-Type':'application/json'},
 body: JSON.stringify(payload)
 });
-}catch(e){
-console.log('Error sending to Google Sheet', e);
+const text = await res.text();
+document.getElementById('statusRow').textContent = `Cloud: ${res.status} ${text.slice(0,120)}`;
+console.log('Webhook response:', res.status, text);
+}catch(err){
+document.getElementById('statusRow').textContent = `Cloud error: ${String(err)}`;
+console.error('Webhook error:', err);
 }
 }
 
