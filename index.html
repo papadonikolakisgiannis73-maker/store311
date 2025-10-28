@@ -298,25 +298,29 @@ return DEFAULT_WEB_APP_URL; // <- βάλε σωστό URL επάνω
 }
 
 async function sendWebhookIfAny(payload){
-const url = settings().webhook;
-if(!url){
-document.getElementById('statusRow').textContent = 'Cloud: λείπει το Webhook URL.';
-return;
-}
-try{
-const res = await fetch(url, {
-method:'POST',
-headers:{'Content-Type':'application/json'},
-body: JSON.stringify(payload)
+const url = settings().webhook?.trim();
+if (!url) return;
+
+const TOKEN = 'store311_2025_secure_token_93hfuWvL8p7Zt!xA'; // ίδιο με SECRET_TOKEN στο Apps Script
+
+try {
+const res = await fetch(url + '?token=' + encodeURIComponent(TOKEN), {
+method: 'POST',
+headers: { 'Content-Type': 'text/plain' }, // αποφεύγουμε preflight/CORS
+body: JSON.stringify(payload),
+redirect: 'follow',
+cache: 'no-store'
 });
-const text = await res.text();
-document.getElementById('statusRow').textContent = `Cloud: ${res.status} ${text.slice(0,120)}`;
-console.log('Webhook response:', res.status, text);
-}catch(err){
-document.getElementById('statusRow').textContent = `Cloud error: ${String(err)}`;
-console.error('Webhook error:', err);
+
+const txt = await res.text().catch(()=> '');
+const ok = res.ok && (txt || '').includes('"ok":true');
+document.getElementById('statusRow').textContent =
+ok ? `Cloud: OK ${res.status}` : `Cloud: ERR ${res.status} ${txt}`;
+} catch (err) {
+document.getElementById('statusRow').textContent = 'Cloud error: ' + err.message;
 }
 }
+
 
 const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
 
