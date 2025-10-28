@@ -8,96 +8,39 @@
 <meta name="theme-color" content="#ffffff">
 <style>
 :root { --pad:22px; --blue:#3b82f6; --blue-border:#1d4ed8; --green:#d9fbe4; --green-border:#b8f0c8; }
-
-/* Ίδιο ύψος iOS/Android */
 html, body { height:-webkit-fill-available; }
-html, body {
-width:100%; margin:0; overflow:hidden; background:#fff; color:#111;
-font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
-}
-
-.viewport {
-box-sizing:border-box;
-height:100dvh; width:100vw;
-padding:10px 20px 20px;
-display:flex; flex-direction:column; gap:14px;
-}
-
-/* --- LOGO --- */
-.brand {
-display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:6px;
-}
-.brand img {
-display:block;
-width: clamp(120px, 18vw, 160px);
-height:auto;
-margin:6px auto 10px;
-image-rendering:auto;
--webkit-user-drag:none;
-}
+html, body { width:100%; margin:0; overflow:hidden; background:#fff; color:#111; font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; }
+.viewport { box-sizing:border-box; height:100dvh; width:100vw; padding:10px 20px 20px; display:flex; flex-direction:column; gap:14px; }
+.brand { display:flex; flex-direction:column; align-items:center; gap:8px; margin-top:6px; }
+.brand img { display:block; width:clamp(120px,18vw,160px); height:auto; margin:6px auto 10px; image-rendering:auto; -webkit-user-drag:none; }
 .brand .title { font-weight:800; font-size:26px; }
 .brand .subtitle { color:#444; margin-top:2px; }
-
 .toprow{ display:flex; justify-content:flex-end; gap:10px; }
 .lockbtn{ border:1px solid #d7dbe2; background:#fff; padding:8px 10px; border-radius:10px; cursor:pointer; font-size:14px; }
-
 .tabbar{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
 .tabbar button{ padding:10px 14px; border-radius:14px; border:1px solid #ddd; background:#f6f7fb; cursor:pointer; }
 .tabbar button.active{ background:#dfe2e8; border-color:#cfd4dc; }
 .tabbar .guard::after{ content:" 🔒"; font-size:12px; opacity:.7; }
-
 .content{ flex:1; display:flex; flex-direction:column; gap:14px; overflow:hidden; }
 .tab{ display:none; flex:1; overflow:auto; -webkit-overflow-scrolling:touch; }
 .tab.active{ display:block; }
-
 .card{ background:#fff; padding:14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.06); }
 label{ display:block; margin:8px 0 6px; font-size:14px; color:#333; }
 input,select,button,textarea{ font-size:16px; padding:12px; border-radius:10px; border:1px solid #d7dbe2; outline:none; }
 textarea{ resize:vertical; }
 .row{ display:flex; gap:10px; flex-wrap:wrap; }
 .grow{ flex:1; }
-
-.controls {
-display: flex;
-gap: 28px;
-flex-wrap: wrap;
-justify-content: center;
-margin-top: 14px;
-}
-.bigbtn {
-flex: 1;
-min-height: 140px;
-font-size: 32px;
-font-weight: 900;
-border-radius: 24px;
-transition: all 0.15s ease;
-box-shadow: 0 6px 14px rgba(0,0,0,0.1);
-}
-.in {
-background: linear-gradient(180deg,#d7fbe4 0%,#b6efc8 100%);
-border: 2px solid #9ce3b4;
-color: #064e3b;
-}
-.out {
-background: linear-gradient(180deg,#3b82f6 0%,#1d4ed8 100%);
-border: 2px solid #1e3a8a;
-color: #fff;
-}
-.in:active, .out:active {
-transform: scale(0.97);
-box-shadow: 0 3px 8px rgba(0,0,0,0.25) inset;
-filter: brightness(0.95);
-}
+.controls{ display:flex; gap:28px; flex-wrap:wrap; justify-content:center; margin-top:14px; }
+.bigbtn{ flex:1; min-height:140px; font-size:32px; font-weight:900; border-radius:24px; transition:all .15s ease; box-shadow:0 6px 14px rgba(0,0,0,.1); }
+.in{ background:linear-gradient(180deg,#d7fbe4 0%,#b6efc8 100%); border:2px solid #9ce3b4; color:#064e3b; }
+.out{ background:linear-gradient(180deg,#3b82f6 0%,#1d4ed8 100%); border:2px solid #1e3a8a; color:#fff; }
+.in:active,.out:active{ transform:scale(.97); box-shadow:0 3px 8px rgba(0,0,0,.25) inset; filter:brightness(.95); }
 @media (max-width:520px){ .bigbtn{ flex-basis:100%; } }
-
 table{ width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
 th,td{ padding:8px; border-bottom:1px solid #eee; text-align:left; }
-
 .hint{ color:#666; font-size:13px; margin-top:6px; }
 .status{ margin-top:8px; font-size:14px; }
 footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
-
-/* Modal PIN */
 #pinModal{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); align-items:center; justify-content:center; }
 #pinBox{ background:#fff; padding:18px; border-radius:12px; width:320px; box-shadow:0 10px 30px rgba(0,0,0,.2); }
 #pinBox h3{ margin:0 0 8px 0; font-size:18px; }
@@ -125,6 +68,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 
 <div class="content">
+<!-- Χτύπημα -->
 <div class="card tab active" id="tab-punch">
 <div class="row">
 <div class="grow">
@@ -153,6 +97,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 </div>
 
+<!-- Ιστορικό -->
 <div class="card tab" id="tab-history">
 <div class="row" style="justify-content:space-between;align-items:center">
 <div class="grow"><label>Ιστορικό (πιο πρόσφατα πρώτα)</label></div>
@@ -169,6 +114,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </table>
 </div>
 
+<!-- Αναφορές -->
 <div class="card tab" id="tab-reports">
 <div class="row">
 <div><label>Μήνας</label><input id="rep-month" type="month"></div>
@@ -180,6 +126,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </table>
 </div>
 
+<!-- Ρυθμίσεις -->
 <div class="card tab" id="tab-settings">
 <label>Λίστα εργαζομένων</label>
 <textarea id="names" rows="4" style="width:100%;font-family:inherit" placeholder="Κάθε όνομα σε νέα γραμμή"></textarea>
@@ -202,7 +149,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <footer>PWA offline • Cloud sync στο OUT • PIN-lock</footer>
 </div>
 
-<!-- Modal PIN -->
+<!-- PIN modal -->
 <div id="pinModal">
 <div id="pinBox">
 <h3 id="pinTitle">Κωδικός διαχειριστή</h3>
@@ -216,42 +163,37 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 
 <script>
-/* ===== Default Google Apps Script URL (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ) ===== */
-const DEFAULT_WEB_APP_URL="https://script.google.com/macros/s/AKfycbwS1XWOp_7SzLPm7y2bZBkmGUHsDtapr21NVH7Bx71sAJ_7abuO8pXMjYBXKTArQX1z/exec?token=store311_2025_secure_token_93hfuWvL8p7Zt!xA";
-/* ============================================================ */
+/* ===== Default Google Apps Script URL (ΒΑΛΕ ΤΟ ΔΙΚΟ ΣΟΥ VERSION 3 + ?token=…) ===== */
+const DEFAULT_WEB_APP_URL = "https://script.google.com/macros/s/PASTE_YOUR_EXEC_URL_HERE/exec?token=store311_2025_secure_token_93hfuWvL8p7Zt!xA";
 </script>
 
 <script>
-/* ====== Storage helpers ====== */
+/* ===== helpers ===== */
 const EMP_KEY='att_employees_v2', LOG_KEY='att_log_v2', SET_KEY='att_settings_v2', ADMIN_KEY='store311_admin_hash';
-const $=(s,p=document)=>p.querySelector(s);
-const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
+const $=(s,p=document)=>p.querySelector(s); const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
 const load=(k,d)=>{try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}catch{return d}}
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
-const getLog=()=>load(LOG_KEY,[]);
-const setLog=v=>save(LOG_KEY,v);
+const getLog=()=>load(LOG_KEY,[]); const setLog=v=>save(LOG_KEY,v);
 const settings=()=>load(SET_KEY,{names:[], webhook:'', shiftStart:'09:00', grace:5});
 const saveSettingsObj=o=>save(SET_KEY,o);
 const toParts=iso=>{const d=new Date(iso);return{date:d.toLocaleDateString('el-GR'),time:d.toLocaleTimeString('el-GR')}};
 const makeEntry=(name,action,note)=>{const iso=new Date().toISOString();const p=toParts(iso);return{id:Math.random().toString(36).slice(2),name,action,iso,date:p.date,time:p.time,note:note||''}};
 
-/* ====== PIN lock (auto-lock 2') ====== */
+/* ===== PIN lock ===== */
 let adminUnlockedUntil=0; const autoLockMs=2*60*1000;
 const now=()=>Date.now(), isAdminUnlocked=()=>now()<adminUnlockedUntil, touchAdmin=()=>adminUnlockedUntil=now()+autoLockMs;
 async function sha256(s){const e=new TextEncoder().encode(s);const b=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
 function showPinModal(setMode=false){return new Promise(res=>{const m=pinModal,i=pinInput,msg=pinMsg,t=pinTitle;t.textContent=setMode?'Ορίστε νέο PIN':'Κωδικός διαχειριστή';msg.textContent='';i.value='';m.style.display='flex';function done(v){m.style.display='none';res(v)};pinCancel.onclick=()=>done(null);pinOk.onclick=()=>done(i.value.trim());i.onkeydown=e=>{if(e.key==='Enter')pinOk.click()};i.focus()})}
-async function requireAdmin(){
-if(isAdminUnlocked()){touchAdmin();return true}
+async function requireAdmin(){ if(isAdminUnlocked()){touchAdmin();return true}
 let saved=localStorage.getItem(ADMIN_KEY);
 if(!saved){const first=await showPinModal(true); if(!first)return false; const h=await sha256(first); localStorage.setItem(ADMIN_KEY,h); touchAdmin(); return true}
 const pin=await showPinModal(false); if(!pin)return false;
 const ok=(await sha256(pin))===saved; if(ok){touchAdmin();return true}
-pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false;
-}
+pinMsg.textContent='Λάθος PIN'; pinMsg.style.color='#b42318'; return false; }
 lockBtn.addEventListener('click',()=>{adminUnlockedUntil=0});
 ['click','touchstart','keydown','mousemove'].forEach(evt=>addEventListener(evt,()=>{if(isAdminUnlocked())touchAdmin()},{passive:true}));
 
-/* ====== Tabs (guarded) ====== */
+/* ===== Tabs ===== */
 $$('.tabbtn').forEach(btn=>{
 btn.addEventListener('click', async ()=>{
 const needAdmin=btn.classList.contains('guard');
@@ -262,7 +204,7 @@ if(btn.dataset.tab==='history') renderLog();
 });
 });
 
-/* ====== Init employees + settings UI ====== */
+/* ===== Init settings ===== */
 function refreshEmployees(){
 const s=settings(); const sel=$("#employee"); sel.innerHTML='';
 if(s.names.length===0){ s.names=['Γιώργος','Μαρία']; saveSettingsObj(s); }
@@ -286,48 +228,37 @@ s.grace=Math.max(0, parseInt($("#grace").value||'5',10));
 saveSettingsObj(s); $("#saveMsg").textContent='Αποθηκεύτηκαν.'; refreshEmployees(); setTimeout(()=>$("#saveMsg").textContent='',1500);
 });
 
-/* ====== Punch logic + cloud sync on OUT ====== */
-function lastActionFor(name){const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));return log[0]?.action||null}
-
-/* Χρησιμοποιεί πρώτα το πεδίο Ρυθμίσεις → Webhook URL, αλλιώς πέφτει στο DEFAULT_WEB_APP_URL */
+/* ===== Cloud webhook ===== */
 function getWebhookUrl(){
 const s = settings();
 const u = (s.webhook||'').trim();
-if (u && u.startsWith('http')) return u;
-return DEFAULT_WEB_APP_URL; // <- βάλε σωστό URL επάνω
+if (u && u.startsWith('http')) return u; // προτεραιότητα στο πεδίο Ρυθμίσεις
+return DEFAULT_WEB_APP_URL; // αλλιώς fallback
 }
-
 async function sendWebhookIfAny(payload){
-const url = settings().webhook?.trim();
+const url = getWebhookUrl();
 if (!url) return;
-
-const TOKEN = 'store311_2025_secure_token_93hfuWvL8p7Zt!xA'; // ίδιο με SECRET_TOKEN στο Apps Script
-
-try {
-const res = await fetch(url + '?token=' + encodeURIComponent(TOKEN), {
-method: 'POST',
-headers: { 'Content-Type': 'text/plain' }, // αποφεύγουμε preflight/CORS
+try{
+const res = await fetch(url, {
+method:'POST',
+headers:{ 'Content-Type':'text/plain' }, // αποφεύγουμε preflight/CORS
 body: JSON.stringify(payload),
-redirect: 'follow',
-cache: 'no-store'
+redirect:'follow',
+cache:'no-store'
 });
-
-const txt = await res.text().catch(()=> '');
-const ok = res.ok && (txt || '').includes('"ok":true');
+const text = await res.text().catch(()=> '');
+const ok = res.ok && (text||'').includes('"ok":true');
 document.getElementById('statusRow').textContent =
-ok ? `Cloud: OK ${res.status}` : `Cloud: ERR ${res.status} ${txt}`;
-} catch (err) {
-document.getElementById('statusRow').textContent = 'Cloud error: ' + err.message;
+ok ? `Cloud: OK ${res.status}` : `Cloud: ERR ${res.status} ${text.slice(0,120)}`;
+}catch(err){
+document.getElementById('statusRow').textContent = 'Cloud error: ' + String(err);
 }
 }
 
-
+/* ===== Punch ===== */
 const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
-
-function updateLastStatus(name){
-const la=lastActionFor(name);
-$("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —';
-}
+function lastActionFor(name){const log=getLog().filter(x=>x.name===name).sort((a,b)=>b.iso.localeCompare(a.iso));return log[0]?.action||null}
+function updateLastStatus(name){ const la=lastActionFor(name); $("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —'; }
 function punch(action){
 const name=$("#employee").value;
 if(!name || name==='—'){ $("#statusRow").textContent='Διάλεξε εργαζόμενο.'; return; }
@@ -336,7 +267,6 @@ const entry=makeEntry(name,action,note);
 const log=getLog(); log.push(entry); setLog(log);
 $("#statusRow").textContent = `${name} • ${action} • ${entry.date} ${entry.time}${note?` • ${note}`:''}`;
 updateLastStatus(name);
-
 if(action==='OUT'){
 const rows=log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
 const lastIn=[...rows].reverse().find(x=>x.action==='IN');
@@ -351,7 +281,7 @@ $("#punchIn").addEventListener('click',()=>punch('IN'));
 $("#punchOut").addEventListener('click',()=>punch('OUT'));
 $("#employee").addEventListener('change',e=>updateLastStatus(e.target.value));
 
-/* ====== History ====== */
+/* ===== History ===== */
 function renderLog(){
 const q=$("#search").value.trim().toLowerCase();
 const tbody=$("#logTable tbody"); if(!tbody) return; tbody.innerHTML='';
@@ -381,7 +311,7 @@ if(!confirm('Σίγουρα διαγραφή όλων;')) return;
 setLog([]); renderLog();
 });
 
-/* ====== Reports ====== */
+/* ===== Reports ===== */
 $("#calc-month")?.addEventListener('click', ()=>{
 const month=$("#rep-month").value; if(!month){ alert('Διάλεξε μήνα.'); return; }
 const [y,m]=month.split('-').map(Number);
@@ -419,14 +349,13 @@ tbody.appendChild(tr);
 });
 });
 
-/* ====== Bootstrap ====== */
+/* ===== Bootstrap ===== */
 (function init(){
-if('serviceWorker' in navigator){
-navigator.serviceWorker.register('./sw.js').catch(()=>{});
-}
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
 const s=settings(); if(!Array.isArray(s.names)) saveSettingsObj({names:[], webhook:'', shiftStart:'09:00', grace:5});
 refreshEmployees(); updateLastStatus($("#employee").value);
 })();
 </script>
 </body>
 </html>
+
