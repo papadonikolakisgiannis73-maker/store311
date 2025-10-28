@@ -1,5 +1,5 @@
 // sw.js
-const CACHE = 'store311-v5';
+const CACHE = 'store311-v6';
 
 // Προ-αποθήκευση μόνο του app shell (όχι logo.png για να μην μένει παλιό)
 const PRECACHE = [
