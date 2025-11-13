@@ -339,33 +339,65 @@ document.getElementById('statusRow').textContent = 'Cloud error: ' + (err?.messa
 
 const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
 
-function updateLastStatus(name){
-const la=lastActionFor(name);
-$("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —';
-}
 function punch(action){
-const name=$("#employee").value;
-if(!name || name==='—'){ $("#statusRow").textContent='Διάλεξε εργαζόμενο.'; return; }
-const note=$("#note").value.trim();
-const entry=makeEntry(name,action,note);
-const log=getLog(); log.push(entry); setLog(log);
-$("#statusRow").textContent = `${name} • ${action} • ${entry.date} ${entry.time}${note?` • ${note}`:''}`;
+const name = $("#employee").value;
+if (!name || name === '—') {
+$("#statusRow").textContent = 'Διάλεξε εργαζόμενο.';
+return;
+}
+
+const last = lastActionFor(name);
+const note = $("#note").value.trim();
+
+// 🚫 ΜΠΛΟΚ ΔΙΠΛΟ IN
+if (action === 'IN' && last === 'IN') {
+$("#statusRow").textContent = `${name}: Έχεις ήδη κάνει IN. Κάνε πρώτα OUT.`;
+updateLastStatus(name);
+$("#note").value = '';
+return;
+}
+
+// 🚫 ΜΠΛΟΚ ΔΙΠΛΟ OUT / OUT ΧΩΡΙΣ ΑΝΟΙΧΤΗ ΒΑΡΔΙΑ
+if (action === 'OUT' && last !== 'IN') {
+$("#statusRow").textContent = `${name}: Δεν υπάρχει ενεργή βάρδια για OUT.`;
+updateLastStatus(name);
+$("#note").value = '';
+return;
+}
+
+// ✅ Αν περάσει τους ελέγχους, καταχωρούμε το χτύπημα στο local log
+const entry = makeEntry(name, action, note);
+const log = getLog();
+log.push(entry);
+setLog(log);
+
+$("#statusRow").textContent =
+`${name} • ${action} • ${entry.date} ${entry.time}${note ? ` • ${note}` : ''}`;
 updateLastStatus(name);
 
-if(action==='OUT'){
-const rows=log.filter(x=>x.name===name).sort((a,b)=>a.iso.localeCompare(b.iso));
-const lastIn=[...rows].reverse().find(x=>x.action==='IN');
-if(lastIn){
-const mins=minutesBetween(lastIn.iso, entry.iso);
-sendWebhookIfAny({type:'session', name, start:lastIn.iso, end:entry.iso, minutes:mins, date:entry.date, note});
-}
-}
-$("#note").value='';
-}
-$("#punchIn").addEventListener('click',()=>punch('IN'));
-$("#punchOut").addEventListener('click',()=>punch('OUT'));
-$("#employee").addEventListener('change',e=>updateLastStatus(e.target.value));
+// ✅ Στέλνουμε στο cloud ΜΟΝΟ στο OUT, και ΜΟΝΟ όταν υπήρχε προηγούμενο IN
+if (action === 'OUT') {
+const rows = log
+.filter(x => x.name === name)
+.sort((a, b) => a.iso.localeCompare(b.iso));
 
+const lastIn = [...rows].reverse().find(x => x.action === 'IN');
+if (lastIn) {
+const mins = minutesBetween(lastIn.iso, entry.iso);
+sendWebhookIfAny({
+type: 'session',
+name,
+start: lastIn.iso,
+end: entry.iso,
+minutes: mins,
+date: entry.date,
+note
+});
+}
+}
+
+$("#note").value = '';
+}
 /* ====== History ====== */
 function renderLog(){
 const q=$("#search").value?.trim().toLowerCase()||'';
