@@ -189,7 +189,7 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 <input id="webhook" placeholder="επικόλλησε εδώ άλλο Web App URL αν θέλεις">
 <div class="hint">Στο OUT στέλνεται payload (start/end/minutes/date/note/type).</div>
 </div>
-<div><label>Ώρα έναρξης</label><input id="shiftStart" placeholder="09:00"></div>
+<div><label>Ώρα έναρξης</label><input id="shiftStart" placeholder="08:00"></div>
 <div><label>Ανοχή καθυστέρησης</label><input id="grace" type="number" min="0" step="1" value="5"></div>
 </div>
 <div class="row">
@@ -216,8 +216,49 @@ footer{ color:#666; font-size:12px; text-align:center; padding:8px 0; }
 </div>
 
 <script>
-/* ===== Default Google Apps Script URL (χρησιμοποιείται αν οι Ρυθμίσεις είναι κενές) ===== */
-const DEFAULT_WEB_APP_URL = "PUT_YOUR_WEB_APP_URL_HERE"; // π.χ. https://script.google.com/macros/s/XXXXX/exec
+/* ===== DEFAULT CLOUD SETTINGS (ΔΕΝ χάνονται ποτέ) ===== */
+
+/* ΒΑΛΕ ΕΔΩ ΤΟ ΔΙΚΟ ΣΟΥ EXEC URL ΤΟΥ Apps Script (ΟΧΙ /dev, ΜΟΝΟ /exec) */
+const DEFAULT_WEB_APP_URL = "PUT_YOUR_EXEC_URL_HERE";
+
+/* Μόνιμη λίστα εργαζομένων (fallback αν χαθεί το localStorage) */
+const DEFAULT_NAMES = [
+"ΓΡΙΒΑ ΒΑΣΙΛΙΚΗ",
+"ΤΟΡΙ ΙΩΑΝΝΑ",
+"ΝΤΟΥΝΗ ΔΗΜΗΤΡΑ",
+"ΓΙΑΝΝΑΚΟΠΟΥΛΟΣ ΔΗΜΗΤΡΗΣ",
+"ΜΥΣΤΕΚΙΑ ΕΜΜΑΝΟΥΕΛ",
+"ΔΙΑΜΑΝΤΟΠΟΥΛΟΣ ΓΙΩΡΓΟΣ",
+"ΧΑΡΙΝΟΣ ΝΙΚΟΣ",
+"BERISHA DANIEL",
+"ΚΑΝΑΚΑΚΗΣ ΓΙΑΝΝΗΣ",
+"ΚΛΙΝΤΙΟΝΑ ΑΓΓΕΛΙΚΗ",
+"TOYFAILI MARIE",
+"ΤΡΑΙΑΝΟΣ ΑΛΕΞΑΝΔΡΟΣ",
+"ΠΑΠΑΝΤΩΝΗΣ ΓΙΩΡΓΟΣ",
+"ΣΑΜΨΩΝ ΑΘΗΝΑ",
+"ΚΑΡΒΕΛΗ ΑΛΕΞΑΝΔΡΑ",
+"ΚΟΖΑΝΙΔΗΣ ΠΑΡΗΣ",
+"ΔΡΟΥΔΑΚΗΣ ΑΝΤΩΝΗΣ",
+"ΣΤΑΥΡΟΥΛΑΚΗ ΦΩΤΕΙΝΗ",
+"ΠΑΡΑΣΥΡΗ ΑΡΓΥΡΩ",
+"ΔΙΑΚΟΥΜΗ ΜΑΡΙΝΑ",
+"ΚΑΤΣΑΛΗΣ ΣΤΑΥΡΟΣ",
+"ΠΑΠΑΔΑΚΗΣ ΚΩΣΤΑΣ",
+"ΘΕΟΔΩΡΑΚΗΣ ΠΑΝΑΓΙΩΤΗΣ",
+"ΔΙΑΚΑΚΗ ΚΑΤΕΡΙΝΑ",
+"ΓΕΩΡΓΙΤΣΗΣ ΑΝΤΡΕΑΣ",
+"ΣΤΑΜΑΤΑΚΗ ΣΤΕΛΛΑ",
+"ΚΑΡΤΑΛΗΣ ΣΤΑΥΡΟΣ",
+"ΜΟΥΜΟΥΡΗΣ ΑΛΕΞΑΝΔΡΟΣ",
+"ΚΥΡΙΑΚΟΥΛΗΣ ΠΕΤΡΟΣ",
+"ΚΟΥΡΙΔΑΚΗΣ ΚΩΣΤΑΣ",
+"ΚΛΑΔΟΣ ΑΝΤΩΝΗΣ",
+"ΠΑΠΑΔΟΝΙΚΟΛΑΚΗΣ ΓΙΑΝΝΗΣ",
+"ΚΟΥΝΔΟΥΡΑΚΗΣ ΚΥΡΙΑΚΟΣ",
+"ΚΩΝΣΤΑΝΤΟΠΟΥΛΟΣ ΑΝΑΣΤΑΣΗΣ"
+];
+
 const SECRET_TOKEN = "store311_2025_secure_token_93hfuWvL8p7Zt!xA"; // ίδιο με Apps Script
 </script>
 
@@ -230,7 +271,25 @@ const load=(k,d)=>{try{const r=localStorage.getItem(k);return r?JSON.parse(r):d}
 const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
 const getLog=()=>load(LOG_KEY,[]);
 const setLog=v=>save(LOG_KEY,v);
-const settings=()=>load(SET_KEY,{names:[], webhook:'', shiftStart:'09:00', grace:5});
+
+/* Ρυθμίσεις με fallback στα DEFAULT_NAMES + default τιμές */
+const settings = () => {
+const base = {
+names: DEFAULT_NAMES,
+webhook: "",
+shiftStart: "08:00",
+grace: 5
+};
+const stored = load(SET_KEY, null);
+if (!stored || typeof stored !== 'object') return base;
+
+return {
+names: Array.isArray(stored.names) && stored.names.length ? stored.names : DEFAULT_NAMES,
+webhook: (stored.webhook || ""),
+shiftStart: stored.shiftStart || "08:00",
+grace: (typeof stored.grace === "number" ? stored.grace : 5)
+};
+};
 const saveSettingsObj=o=>save(SET_KEY,o);
 
 /* 24ωρη ώρα για εμφάνιση */
@@ -272,11 +331,10 @@ if(btn.dataset.tab==='history') renderLog();
 /* ====== Init employees + settings UI ====== */
 function refreshEmployees(){
 const s=settings(); const sel=$("#employee"); sel.innerHTML='';
-if(s.names.length===0){ s.names=['Γιώργος','Μαρία']; saveSettingsObj(s); }
 s.names.forEach(n=>{const o=document.createElement('option');o.value=o.textContent=n;sel.appendChild(o)});
 $("#names").value=s.names.join('\n');
 $("#webhook").value=s.webhook||'';
-$("#shiftStart").value=s.shiftStart||'09:00';
+$("#shiftStart").value=s.shiftStart||'08:00';
 $("#grace").value=s.grace??5;
 }
 $("#add").addEventListener('click', ()=>{
@@ -288,7 +346,7 @@ $("#saveSettings").addEventListener('click', ()=>{
 const s=settings();
 s.names=$("#names").value.split('\n').map(x=>x.trim()).filter(Boolean);
 s.webhook=$("#webhook").value.trim();
-s.shiftStart=$("#shiftStart").value.trim()||'09:00';
+s.shiftStart=$("#shiftStart").value.trim()||'08:00';
 s.grace=Math.max(0, parseInt($("#grace").value||'5',10));
 saveSettingsObj(s); $("#saveMsg").textContent='Αποθηκεύτηκαν.'; refreshEmployees(); setTimeout(()=>$("#saveMsg").textContent='',1500);
 });
@@ -338,6 +396,11 @@ document.getElementById('statusRow').textContent = 'Cloud error: ' + (err?.messa
 }
 
 const minutesBetween=(a,b)=>Math.max(0,Math.round((new Date(b)-new Date(a))/60000));
+
+function updateLastStatus(name){
+const la=lastActionFor(name);
+$("#lastRow").textContent = la ? `Τελευταίο χτύπημα: ${la}` : 'Τελευταίο χτύπημα: —';
+}
 
 function punch(action){
 const name = $("#employee").value;
@@ -398,6 +461,7 @@ note
 
 $("#note").value = '';
 }
+
 /* ====== History ====== */
 function renderLog(){
 const q=$("#search").value?.trim().toLowerCase()||'';
@@ -471,8 +535,12 @@ tbody.appendChild(tr);
 if('serviceWorker' in navigator){
 navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
-const s=settings(); if(!Array.isArray(s.names)) saveSettingsObj({names:[], webhook:'', shiftStart:'09:00', grace:5});
-refreshEmployees(); updateLastStatus($("#employee").value);
+const s=settings();
+if(!Array.isArray(s.names) || !s.names.length){
+saveSettingsObj({names: DEFAULT_NAMES, webhook:"", shiftStart:"08:00", grace:5});
+}
+refreshEmployees();
+updateLastStatus($("#employee").value);
 })();
 </script>
 </body>
