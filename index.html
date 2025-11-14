@@ -532,15 +532,22 @@ tbody.appendChild(tr);
 
 /* ====== Bootstrap ====== */
 (function init(){
-if('serviceWorker' in navigator){
+if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
-const s=settings();
-if(!Array.isArray(s.names) || !s.names.length){
-saveSettingsObj({names: DEFAULT_NAMES, webhook:"", shiftStart:"08:00", grace:5});
+
+const s = settings();
+if (!Array.isArray(s.names) || !s.names.length) {
+saveSettingsObj({ names: DEFAULT_NAMES, webhook: "", shiftStart: "08:00", grace: 5 });
 }
+
 refreshEmployees();
 updateLastStatus($("#employee").value);
+
+// 🔗 ΣΥΝΔΕΣΗ ΚΟΥΜΠΙΩΝ ΜΕ ΤΗΝ punch()
+document.getElementById('punchIn').addEventListener('click', () => punch('IN'));
+document.getElementById('punchOut').addEventListener('click', () => punch('OUT'));
+document.getElementById('employee').addEventListener('change', e => updateLastStatus(e.target.value));
 })();
 </script>
 </body>
