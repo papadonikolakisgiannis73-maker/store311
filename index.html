@@ -260,7 +260,7 @@ const DEFAULT_NAMES = [
 ];
 
 const SECRET_TOKEN = "store311_2025_secure_token_93hfuWvL8p7Zt!xA"; // ίδιο με Apps Script
-const DEVICE_KEY = "DVC-311-main-2025-Wz3k!91"; 
+ 
 </script>
 
 <script>
@@ -374,7 +374,6 @@ let base = getWebhookUrl();
 if(!base){ document.getElementById('statusRow').textContent = 'Cloud: no URL set'; return; }
 
 let url = withToken(base, SECRET_TOKEN);
-url += "&deviceKey=" + encodeURIComponent(DEVICE_KEY); // 🔐 προσθήκη
 
 try {
 const ctrl = new AbortController();
