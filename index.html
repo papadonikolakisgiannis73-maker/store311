@@ -426,8 +426,7 @@ console.warn("checkCloudOpenShift error", err);
 return { open:false };
 }
 }
-/* ====== Punch logic + cloud sync για IN/OUT ====== */
-async function punch(action){
+function punch(action){
 const name = $("#employee").value;
 if (!name || name === '—') {
 $("#statusRow").textContent = 'Διάλεξε εργαζόμενο.';
@@ -436,7 +435,6 @@ return;
 
 const last = lastActionFor(name);
 const note = $("#note").value.trim();
-let effectiveLast = last;
 
 // 🚫 ΜΠΛΟΚ ΔΙΠΛΟ IN
 if (action === 'IN' && last === 'IN') {
@@ -446,32 +444,12 @@ $("#note").value = '';
 return;
 }
 
-// 🧠 Αν πάει να κάνει OUT αλλά το tablet "έχασε" το IN → ρώτα το cloud
+// 🚫 ΜΠΛΟΚ ΔΙΠΛΟ OUT / OUT ΧΩΡΙΣ ΑΝΟΙΧΤΗ ΒΑΡΔΙΑ
 if (action === 'OUT' && last !== 'IN') {
-const cloud = await checkCloudOpenShift(name);
-
-if (cloud && cloud.open) {
-// Φτιάχνουμε ένα "ψεύτικο" IN τοπικά για να συνεχίσει να δουλεύει σωστά
-const fake = {
-id: Math.random().toString(36).slice(2),
-name,
-action: 'IN',
-iso: cloud.startIso,
-date: cloud.date,
-time: cloud.time,
-note: ''
-};
-const log = getLog();
-log.push(fake);
-setLog(log);
-effectiveLast = 'IN';
-} else {
-// Ούτε το cloud δεν βρίσκει ανοιχτή βάρδια
 $("#statusRow").textContent = `${name}: Δεν υπάρχει ενεργή βάρδια για OUT.`;
 updateLastStatus(name);
 $("#note").value = '';
 return;
-}
 }
 
 // ✅ Αν περάσει τους ελέγχους, καταχωρούμε το χτύπημα στο local log
@@ -484,20 +462,19 @@ $("#statusRow").textContent =
 `${name} • ${action} • ${entry.date} ${entry.time}${note ? ` • ${note}` : ''}`;
 updateLastStatus(name);
 
-// ✅ Στέλνουμε ΠΑΝΤΑ στο cloud
-
-// 1) Στο IN στέλνουμε μόνο την αρχή της βάρδιας
+// 🔵 ΣΤΕΛΝΟΥΜΕ ΚΑΙ ΤΟ IN ΣΤΟ CLOUD
 if (action === 'IN') {
 sendWebhookIfAny({
 type: 'in',
 name,
-start: entry.iso,
+iso: entry.iso,
 date: entry.date,
+time: entry.time,
 note
 });
 }
 
-// 2) Στο OUT στέλνουμε τα πάντα (start/end/minutes)
+// 🔵 Στέλνουμε στο cloud ΜΟΝΟ στο OUT το session
 if (action === 'OUT') {
 const rows = log
 .filter(x => x.name === name)
@@ -507,7 +484,7 @@ const lastIn = [...rows].reverse().find(x => x.action === 'IN');
 if (lastIn) {
 const mins = minutesBetween(lastIn.iso, entry.iso);
 sendWebhookIfAny({
-type: 'out',
+type: 'session',
 name,
 start: lastIn.iso,
 end: entry.iso,
