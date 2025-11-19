@@ -452,7 +452,7 @@ $("#note").value = '';
 return;
 }
 
-// ✅ Αν περάσει τους ελέγχους, καταχωρούμε το χτύπημα στο local log
+// ✅ Local log
 const entry = makeEntry(name, action, note);
 const log = getLog();
 log.push(entry);
@@ -462,19 +462,18 @@ $("#statusRow").textContent =
 `${name} • ${action} • ${entry.date} ${entry.time}${note ? ` • ${note}` : ''}`;
 updateLastStatus(name);
 
-// 🔵 ΣΤΕΛΝΟΥΜΕ ΚΑΙ ΤΟ IN ΣΤΟ CLOUD
+// 🔵 ΣΤΕΛΝΟΥΜΕ ΚΑΙ ΤΑ IN ΣΤΟ CLOUD
 if (action === 'IN') {
 sendWebhookIfAny({
 type: 'in',
 name,
-iso: entry.iso,
-date: entry.date,
-time: entry.time,
+iso: entry.iso, // πλήρες timestamp ISO
+date: entry.date, // ημερομηνία "dd/mm/yyyy"
 note
 });
 }
 
-// 🔵 Στέλνουμε στο cloud ΜΟΝΟ στο OUT το session
+// 🔵 OUT → session με λεπτά
 if (action === 'OUT') {
 const rows = log
 .filter(x => x.name === name)
